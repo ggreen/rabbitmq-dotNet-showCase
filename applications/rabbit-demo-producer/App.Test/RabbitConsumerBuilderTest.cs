@@ -58,8 +58,8 @@ namespace rabbit_demo_producer.App.Test
             
         }
 
-
-               public void Build_Throws_ExchangeRequired()
+        [TestMethod]
+        public void Build_Throws_ExchangeRequired()
         {
             Assert.ThrowsException<ArgumentException>(
             () => subject.Build()
@@ -78,7 +78,7 @@ namespace rabbit_demo_producer.App.Test
             subject.AutoDelete  =expectedAutoDelete;
             subject.QueueExclusive = expectedExclusive;
             subject.RoutingKey = expectedRoutingKey;
-            
+
 
             var actual = subject.Build();
             Assert.IsNotNull(actual);

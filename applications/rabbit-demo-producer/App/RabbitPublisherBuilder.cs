@@ -1,26 +1,41 @@
 using System;
+using RabbitMQ.Client;
 
 namespace rabbit_demo_producer.App
 {
-    public class RabbitPublisherBuilder
+    public class RabbitPublisherBuilder : RabbitBuilder
     {
-        public RabbitPublisherBuilder()
+        private bool persistent = true;
+
+        public RabbitPublisherBuilder(IModel channel) : base(channel)
         {
         }
 
-        public RabbitPublisherBuilder SetExchange(string topic)
+        public RabbitPublisherBuilder SetExchange(string exchange)
         {
+            base.Exchange = exchange;
             return this;
         }
 
         public RabbitPublisherBuilder AddQueue(string queue)
         {
+            base.queues.Add(queue);
             return this;
         }
 
-        internal RabbitPublisher Build()
+        public RabbitPublisherBuilder Persistent(bool persistent)
         {
-            throw new NotImplementedException();
+            this.persistent = persistent;
+            return this;
+        }
+        public RabbitPublisher Build()
+        {
+            Construct();
+
+            IBasicProperties basicProperties = channel.CreateBasicProperties();
+            basicProperties.Persistent = persistent;
+
+            return new RabbitPublisher(this.channel,Exchange,basicProperties);
         }
     }
 }

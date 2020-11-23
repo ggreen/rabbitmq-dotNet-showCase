@@ -5,22 +5,23 @@ namespace rabbit_demo_producer.App
 {
     public class RabbitPublisher
     {
-        
+        private readonly IBasicProperties basicProperties;
         private IModel channel;
         private string exchange;
 
-        public RabbitPublisher(IModel channel, string exchange, String queue)
+        public RabbitPublisher(IModel channel, string exchange,IBasicProperties basicProperties)
         {
             this.channel = channel;
             this.exchange = exchange;
+            this.basicProperties = basicProperties;
         }
         
-        public void Publish(byte[] body)
+        public void Publish(byte[] body, string routingKey)
         {
 
             channel.BasicPublish(exchange: exchange,
-                                 routingKey: "",
-                                 basicProperties: null,
+                                 routingKey: routingKey,
+                                 basicProperties: basicProperties,
                                  body: body);
 
             Console.WriteLine(" [x] Sent {0}", body.Length);

@@ -3,48 +3,25 @@ using System.Text;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Collections.Generic;
+using Imani.Solutions.Core.API.Util;
 
 namespace rabbit_demo_producer.App
 {
     public class Rabbit
     {
-        private string host;
-        private IConnectionFactory factory;
+        private readonly IConnectionFactory factory;
         private IConnection connection;
 
-        private IModel channel;
-
-        private string exchange;
-        private string  queue;
-
-        private string routingKey = "";
-
-        private Rabbit()
+        private Rabbit(string host) : this(new ConnectionFactory() { HostName = host})
         {
-            // this.exchange = exchange;
-            // this.queue = queue;
-
-            // this.host = host;
-
-            factory = new ConnectionFactory() { HostName = host};
-
-            connection = factory.CreateConnection();
-            // channel = ;
-
-            // channel.ExchangeDeclare(exchange : exchange,
-            //         type: "direct",
-            //         durable : true,
-            //         autoDelete : false);
-
-            //  channel.QueueDeclare(queue: queue,
-            //             durable: true,
-            //             exclusive: false,
-            //             autoDelete: false);
-
-            // channel.QueueBind(queue,
-            //                 exchange,
-            //                 routingKey);
         }
+
+         internal Rabbit(IConnectionFactory factory)
+        {
+            this.factory = factory;
+            connection = factory.CreateConnection();
+        }
+
 
         public RabbitConsumerBuilder ConsumerBuilder()
         {
@@ -53,12 +30,13 @@ namespace rabbit_demo_producer.App
 
         public RabbitPublisherBuilder PublishBuilder()
         {
-            return new RabbitPublisherBuilder();
+            return new RabbitPublisherBuilder(connection.CreateModel());
         }
 
         public static Rabbit Connect()
         {
-            throw new NotImplementedException();
+            string host = new ConfigSettings().GetProperty("RABBIT_HOST","localhost");
+            return new Rabbit(host);
         }
 
       

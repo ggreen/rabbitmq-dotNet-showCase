@@ -5,14 +5,21 @@ namespace rabbit_demo_producer.App
 {
     public class RabbitConsumer
     {
-       private EventingBasicConsumer consumer;
-        private IModel channel;
-        private string exchange;
-        private string  queue;
+        private readonly IModel channel;
+        private readonly string queue;
+        private bool autoAck = false;
+
+        public RabbitConsumer(IModel channel, string queue,bool autoAck)
+        {
+            this.channel = channel;
+            this.queue = queue;
+            this.autoAck = autoAck;
+        }
+
        
         public void RegisterReceiver(ReceiveMessage receiver)
         {
-            consumer = new EventingBasicConsumer(channel);
+            var consumer = new EventingBasicConsumer(channel);
 
             consumer.Received += (model, ea) =>
             {
@@ -20,7 +27,7 @@ namespace rabbit_demo_producer.App
             };
 
             channel.BasicConsume(queue: queue,
-                                autoAck: false,
+                                autoAck: autoAck,
                                 consumer: consumer);
         }
 
