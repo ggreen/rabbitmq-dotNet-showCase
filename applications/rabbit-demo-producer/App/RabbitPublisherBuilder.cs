@@ -5,10 +5,11 @@ namespace rabbit_demo_producer.App
 {
     public class RabbitPublisherBuilder : RabbitBuilder
     {
-        private bool persistent = true;
+        public bool Persistent { get; private set; }
 
         public RabbitPublisherBuilder(IModel channel) : base(channel)
         {
+            Persistent = true;
         }
 
         public RabbitPublisherBuilder SetExchange(string exchange)
@@ -23,9 +24,9 @@ namespace rabbit_demo_producer.App
             return this;
         }
 
-        public RabbitPublisherBuilder Persistent(bool persistent)
+        public RabbitPublisherBuilder SetPersistent(bool persistent)
         {
-            this.persistent = persistent;
+            this.Persistent = persistent;
             return this;
         }
         public RabbitPublisher Build()
@@ -33,7 +34,7 @@ namespace rabbit_demo_producer.App
             Construct();
 
             IBasicProperties basicProperties = channel.CreateBasicProperties();
-            basicProperties.Persistent = persistent;
+            basicProperties.Persistent = Persistent;
 
             return new RabbitPublisher(this.channel,Exchange,basicProperties);
         }

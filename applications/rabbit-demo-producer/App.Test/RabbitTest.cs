@@ -41,7 +41,7 @@ namespace rabbit_demo_producer.App.Test
             .AddQueue(queue)
             .Build();
 
-            consumer.RegisterReceiver(reciever);
+            // consumer.RegisterReceiver(reciever);
 
             var msg = Encoding.UTF8.GetBytes(expected);
             RabbitPublisher publisher = subject.PublishBuilder().
@@ -57,10 +57,7 @@ namespace rabbit_demo_producer.App.Test
             // Assert.AreEqual(expected, actual);
         }
 
-        private void reciever(object message, BasicDeliverEventArgs eventArg)
-        {
-            actual = Encoding.UTF8.GetString(eventArg.Body.ToArray());
-        }
+     
     }
 
 

@@ -12,7 +12,7 @@ namespace rabbit_demo_producer.App
         private readonly IConnectionFactory factory;
         private IConnection connection;
 
-        private Rabbit(string host) : this(new ConnectionFactory() { HostName = host})
+        private Rabbit(string host,int port) : this(new ConnectionFactory() { HostName = host, Port = port})
         {
         }
 
@@ -35,8 +35,11 @@ namespace rabbit_demo_producer.App
 
         public static Rabbit Connect()
         {
-            string host = new ConfigSettings().GetProperty("RABBIT_HOST","localhost");
-            return new Rabbit(host);
+            var config = new ConfigSettings();
+
+            string host = config.GetProperty("RABBIT_HOST","localhost");
+            int port = config.GetPropertyInteger("RABBIT_PORT",5672);
+            return new Rabbit(host,port);
         }
 
       

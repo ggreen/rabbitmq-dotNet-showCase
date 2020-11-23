@@ -7,26 +7,32 @@ using RabbitMQ.Client;
 namespace rabbit_demo_producer.App.Test
 {
     [TestClass]
-    public class RabbitConsumerBuilderTest
+    public class RabbitPublisherBuilderTest
     {
+        private RabbitPublisherBuilder subject;
+
         private Mock<IModel> mockChannel;
-         private RabbitConsumerBuilder subject;
         private string expectedExchange ="myexchange";
         private string expectedQueue = "queue1";
-
         private RabbitExchangeType expectedType = RabbitExchangeType.fanout;
         private bool expectedDurable = true;
         private bool expectedAutoDelete = true;
         private IDictionary<string, object> expectedArguments = null;
         private bool expectedExclusive =true;
         private string expectedRoutingKey = "myKey";
+        private Mock<IBasicProperties> mockProperties;
 
         [TestInitialize]
          public void InitializeRabbitConsumerBuilderTest()
          {
+             mockProperties = new Mock<IBasicProperties>();
+
              mockChannel = new Mock<IModel>();
-             subject = new RabbitConsumerBuilder(mockChannel.Object);
+             mockChannel.Setup(c => c.CreateBasicProperties()).Returns(mockProperties.Object);
+                          
+             subject = new RabbitPublisherBuilder(mockChannel.Object);
          }
+
 
         [TestMethod]
         public void SetExchange()
@@ -39,6 +45,7 @@ namespace rabbit_demo_producer.App.Test
             Assert.AreEqual(expectedExchange,subject.Exchange);
         }
 
+
         [TestMethod]
         public void AddQueue()
         { 
@@ -46,6 +53,20 @@ namespace rabbit_demo_producer.App.Test
 
             Assert.IsTrue(subject.Queues.Contains(expectedQueue));
         }
+
+        [TestMethod]
+        public void IsDefaultDurable()
+        {
+            Assert.IsTrue(subject.Durable);
+        }
+
+
+        [TestMethod]
+        public void IsPersistent()
+        {
+            Assert.IsTrue(subject.Persistent);
+        }
+
 
         [TestMethod]
         public void Build_Throws_QueueRequired()
@@ -58,24 +79,15 @@ namespace rabbit_demo_producer.App.Test
             
         }
 
-
-        [TestMethod]
-        public void IsDefaultDurable()
-        {
-            Assert.IsTrue(subject.Durable);
-        }
-
-
         [TestMethod]
         public void Build_Throws_ExchangeRequired()
         {
             Assert.ThrowsException<ArgumentException>(
             () => subject.Build()
             );
-            
         }
 
-        [TestMethod]
+         [TestMethod]
         public void Build()
         {
             subject.SetExchange(expectedExchange);
@@ -86,7 +98,6 @@ namespace rabbit_demo_producer.App.Test
             subject.AutoDelete  =expectedAutoDelete;
             subject.QueueExclusive = expectedExclusive;
             subject.RoutingKey = expectedRoutingKey;
-
 
             var actual = subject.Build();
             Assert.IsNotNull(actual);
@@ -99,7 +110,6 @@ namespace rabbit_demo_producer.App.Test
 
             mockChannel.Verify( c => c.QueueDeclare(expectedQueue,expectedDurable,
             expectedExclusive,expectedAutoDelete,expectedArguments));
-
 
             mockChannel.Verify( c => c.QueueBind(expectedQueue,expectedExchange,expectedRoutingKey,expectedArguments));
             
