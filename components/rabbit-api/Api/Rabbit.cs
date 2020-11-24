@@ -5,7 +5,7 @@ using RabbitMQ.Client.Events;
 using System.Collections.Generic;
 using Imani.Solutions.Core.API.Util;
 
-namespace rabbit_demo_producer.App
+namespace rabbit_api.API
 {
     public class Rabbit
     {

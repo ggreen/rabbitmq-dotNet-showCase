@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
-namespace rabbit_demo_producer.App
+namespace rabbit_api.API
 {
     public class RabbitConsumerBuilder : RabbitBuilder
     {
@@ -20,30 +20,35 @@ namespace rabbit_demo_producer.App
             return this;
         }
 
-        public RabbitConsumerBuilder AddQueue(string queue)
+        public RabbitConsumerBuilder AddQueue(string queue, string routingKey)
         {
-            base.queues.Add(queue);
+       
+            base.AddQueueRoutingKey(queue,routingKey);
             return this;
+        }
+        public RabbitConsumerBuilder SetExchangeType(RabbitExchangeType type)
+        {
+            ExchangeType = type;
+           return this;
         }
         public RabbitConsumer Build()
         {
-            CheckQueues();
-
-            if (queues.Count > 1)
-                throw new Exception("If more than one queue, call Build(queueName)");
+            
+            if (queues.Count < 1)
+                throw new ArgumentException("If more than one queue, call Build(queueName)");
 
             var i = queues.GetEnumerator();
             i.MoveNext();
 
-            return Build(i.Current);
+            return Build(i.Current.Item1);
         }
         public RabbitConsumer Build(string consumerQueue)
         {
-            Construct();
+            ConstructExchange();
+            ConstructQueues();
 
             return new RabbitConsumer(this.channel, consumerQueue, AutoAck);
         }
 
-      
     }
 }

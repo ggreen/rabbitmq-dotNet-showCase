@@ -1,7 +1,7 @@
 using System;
 using RabbitMQ.Client;
 
-namespace rabbit_demo_producer.App
+namespace rabbit_api.API
 {
     public class RabbitPublisherBuilder : RabbitBuilder
     {
@@ -18,9 +18,9 @@ namespace rabbit_demo_producer.App
             return this;
         }
 
-        public RabbitPublisherBuilder AddQueue(string queue)
+        public RabbitPublisherBuilder AddQueue(string queue, String routingKey)
         {
-            base.queues.Add(queue);
+            this.AddQueueRoutingKey(queue,routingKey);
             return this;
         }
 
@@ -31,12 +31,18 @@ namespace rabbit_demo_producer.App
         }
         public RabbitPublisher Build()
         {
-            Construct();
+            ConstructExchange();
 
             IBasicProperties basicProperties = channel.CreateBasicProperties();
             basicProperties.Persistent = Persistent;
 
             return new RabbitPublisher(this.channel,Exchange,basicProperties);
+        }
+
+        public RabbitPublisherBuilder SetExchangeType(RabbitExchangeType type)
+        {
+            ExchangeType = type;
+            return this;
         }
     }
 }

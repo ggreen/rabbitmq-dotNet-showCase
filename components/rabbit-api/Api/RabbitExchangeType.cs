@@ -1,4 +1,4 @@
-namespace rabbit_demo_producer.App
+namespace rabbit_api.API
 {
     public enum RabbitExchangeType
     {

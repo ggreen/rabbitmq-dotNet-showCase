@@ -1,7 +1,7 @@
 using System;
 using RabbitMQ.Client;
 
-namespace rabbit_demo_producer.App
+namespace rabbit_api.API
 {
     public class RabbitPublisher
     {
@@ -24,7 +24,6 @@ namespace rabbit_demo_producer.App
                                  basicProperties: basicProperties,
                                  body: body);
 
-            Console.WriteLine(" [x] Sent {0}", body.Length);
         }
     }
 }

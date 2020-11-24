@@ -4,11 +4,10 @@ using System.Text;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using rabbit_demo_producer.App;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
-namespace rabbit_demo_producer.App.Test
+namespace rabbit_api.API.Test
 {
 
     [TestClass]
@@ -16,14 +15,12 @@ namespace rabbit_demo_producer.App.Test
     {
         private string topic = "t";
         private string queue = "q";
-        private string actual = null;
         private String expected = "{}";
-        private int sleepTimeMs = 1000;
 
         [TestMethod]
         public void Publish()
         {
-
+            string routingKey = "";
             IDictionary<string, object> args = new Dictionary<string, object>();
             var mockFactory = new Mock<IConnectionFactory>();
             var mockConnection = new Mock<IConnection>();
@@ -38,7 +35,7 @@ namespace rabbit_demo_producer.App.Test
 
             var consumer = subject.ConsumerBuilder()
             .SetExchange(topic)
-            .AddQueue(queue)
+            .AddQueue(queue,routingKey)
             .Build();
 
             // consumer.RegisterReceiver(reciever);
@@ -46,15 +43,13 @@ namespace rabbit_demo_producer.App.Test
             var msg = Encoding.UTF8.GetBytes(expected);
             RabbitPublisher publisher = subject.PublishBuilder().
             SetExchange(topic)
-            .AddQueue(queue)
+            .AddQueue(queue,routingKey)
             .Build();
 
-            string routingKey = null;
+            
            publisher.Publish(msg,routingKey);
 
-            // Thread.Sleep(sleepTimeMs);
 
-            // Assert.AreEqual(expected, actual);
         }
 
      

@@ -1,10 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <RootNamespace>rabbit_demo_producer</RootNamespace>
-    <GenerateProgramFile>false</GenerateProgramFile>
+    <RootNamespace>rabbit_api</RootNamespace>
+    <!-- <GenerateProgramFile>false</GenerateProgramFile> -->
   </PropertyGroup>
 
 <ItemGroup>
@@ -17,8 +16,5 @@
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'Release'">
       <Compile Remove="API.Test/**" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\components\rabbit-api\rabbit-api.csproj" />
   </ItemGroup>
 </Project>

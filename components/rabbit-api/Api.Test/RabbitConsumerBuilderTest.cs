@@ -4,7 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using RabbitMQ.Client;
 
-namespace rabbit_demo_producer.App.Test
+namespace rabbit_api.API
 {
     [TestClass]
     public class RabbitConsumerBuilderTest
@@ -20,12 +20,14 @@ namespace rabbit_demo_producer.App.Test
         private IDictionary<string, object> expectedArguments = null;
         private bool expectedExclusive =true;
         private string expectedRoutingKey = "myKey";
+        private Tuple<string, string> expectedTuple;
 
         [TestInitialize]
          public void InitializeRabbitConsumerBuilderTest()
          {
              mockChannel = new Mock<IModel>();
              subject = new RabbitConsumerBuilder(mockChannel.Object);
+             expectedTuple = new Tuple<string, string>(expectedQueue,expectedRoutingKey);
          }
 
         [TestMethod]
@@ -40,13 +42,41 @@ namespace rabbit_demo_producer.App.Test
         }
 
         [TestMethod]
-        public void AddQueue()
-        { 
-            subject.AddQueue(expectedQueue);
+        public void SetExchangeType()
+        {
+            RabbitExchangeType expected = RabbitExchangeType.fanout;
+           var actual = subject.SetExchangeType(expected);
 
-            Assert.IsTrue(subject.Queues.Contains(expectedQueue));
+           Assert.IsNotNull(actual);
+
+            Assert.AreEqual(expected,actual.ExchangeType);
+            
         }
 
+        [TestMethod]
+        public void AddQueue()
+        { 
+            subject.AddQueue(expectedQueue,expectedRoutingKey);
+
+            Assert.IsTrue(subject.Queues.Contains(expectedTuple));
+        }
+
+        [TestMethod]
+        public void AddQueue_throwsArgumentWhenRoutingKeyIsNull()
+        { 
+            Assert.ThrowsException<ArgumentException>
+            (()=> subject.AddQueue(expectedQueue,null));
+        }
+
+
+        [TestMethod]
+        public void AddQueue_throwsArgumentWhenQueueIsNullOrEmpty()
+        { 
+            Assert.ThrowsException<ArgumentException>
+            (()=> subject.AddQueue(null,""));
+                      Assert.ThrowsException<ArgumentException>
+            (()=> subject.AddQueue("",""));
+        }
         [TestMethod]
         public void Build_Throws_QueueRequired()
         {
@@ -57,6 +87,7 @@ namespace rabbit_demo_producer.App.Test
             );
             
         }
+
 
 
         [TestMethod]
@@ -79,13 +110,12 @@ namespace rabbit_demo_producer.App.Test
         public void Build()
         {
             subject.SetExchange(expectedExchange);
-            subject.AddQueue(expectedQueue);
+            subject.AddQueue(expectedTuple.Item1,expectedTuple.Item2);
 
             subject.ExchangeType = expectedType;
             subject.Durable = expectedDurable;
             subject.AutoDelete  =expectedAutoDelete;
             subject.QueueExclusive = expectedExclusive;
-            subject.RoutingKey = expectedRoutingKey;
 
 
             var actual = subject.Build();

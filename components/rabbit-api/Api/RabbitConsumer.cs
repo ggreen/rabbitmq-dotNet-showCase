@@ -1,7 +1,7 @@
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
-namespace rabbit_demo_producer.App
+namespace rabbit_api.API
 {
     public class RabbitConsumer
     {
@@ -21,9 +21,9 @@ namespace rabbit_demo_producer.App
         {
             var consumer = new EventingBasicConsumer(channel);
 
-            consumer.Received += (model, ea) =>
+            consumer.Received += (sender, ea) =>
             {
-                receiver(model, ea);
+                receiver(this.channel,sender, ea);
             };
 
             channel.BasicConsume(queue: queue,
@@ -31,7 +31,7 @@ namespace rabbit_demo_producer.App
                                 consumer: consumer);
         }
 
-        public delegate void ReceiveMessage(object message, BasicDeliverEventArgs eventArg);
+        public delegate void ReceiveMessage(IModel channel, object message, BasicDeliverEventArgs eventArg);
 
     }
 

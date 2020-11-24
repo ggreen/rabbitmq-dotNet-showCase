@@ -2,49 +2,60 @@ using System;
 using System.Collections.Generic;
 using RabbitMQ.Client;
 
-namespace rabbit_demo_producer.App
+namespace rabbit_api.API
 {
     public abstract class RabbitBuilder
     {
 
         internal readonly IModel channel;
-        internal HashSet<string> queues = new HashSet<string>();
+        internal HashSet<Tuple<string,string>> queues = new HashSet<Tuple<string,string>>();
         // internal IDictionary<string, object> arguments;
 
         public RabbitBuilder(IModel channel)
         {
             this.channel = channel;
-            this.RoutingKey = "";
             Durable = true;
-            
         }
         public RabbitExchangeType ExchangeType { get; set; }
 
         public string Exchange { get; internal set; }
 
+        internal void AddQueueRoutingKey(string queue, string routingKey)
+        {
+            if(String.IsNullOrEmpty(queue))
+                throw new ArgumentException("queue cannot be null or empty");
+
+            if(routingKey == null)
+                throw new ArgumentException("routingKey cannot be null when adding a queue");
+
+            this.queues.Add(new Tuple<string, string>(queue,routingKey));
+        }
+
         public bool Durable { get; set; }
         public bool AutoDelete { get; set; }
 
-        public ISet<string> Queues { get { return queues; } }
+        public ISet<Tuple<string,string>> Queues { get { return queues; } }
 
         public bool QueueExclusive { get; internal set; }
-        public string RoutingKey { get; internal set; }
 
-        internal void Construct()
+        internal void ConstructExchange()
         {
             if (String.IsNullOrEmpty(Exchange))
                 throw new ArgumentException("Set Exchange required");
 
-            CheckQueues();
+            
 
             this.channel.ExchangeDeclare
             (Exchange, ExchangeType.ToString(), Durable, AutoDelete);
-
+        }
+        internal void ConstructQueues()
+        {
+            CheckQueues();
 
             foreach (var queue in queues)
             {
-                this.channel.QueueDeclare(queue, Durable, QueueExclusive, AutoDelete);
-                this.channel.QueueBind(queue, Exchange, RoutingKey);
+                this.channel.QueueDeclare(queue.Item1, Durable, QueueExclusive, AutoDelete);
+                this.channel.QueueBind(queue.Item1, Exchange, queue.Item2);
             }
         }
 
