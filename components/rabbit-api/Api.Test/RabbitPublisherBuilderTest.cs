@@ -98,6 +98,19 @@ namespace rabbit_api.API.Test
             Assert.AreEqual(expected, actual.ExchangeType);
 
         }
+        [TestMethod]
+        public void SetConfirmPublish()
+        {
+            Assert.IsFalse(subject.IsConfirmPublish);
+            var actual = subject.SetConfirmPublish();
+
+            Assert.IsNotNull(actual);
+
+            Assert.IsTrue(actual.IsConfirmPublish);
+
+        }
+
+       
 
         [TestMethod]
         public void Build_Throws_ExchangeRequired()
@@ -110,6 +123,24 @@ namespace rabbit_api.API.Test
         [TestMethod]
         public void Build()
         {
+
+            VerifyBuild();
+            
+        }
+
+         [TestMethod]
+        public void Build_SetConfirmPublish()
+        {
+            subject = subject.SetConfirmPublish();
+
+            VerifyBuild();
+            
+             mockChannel.Verify( c => c.ConfirmSelect());
+        }
+
+        private void VerifyBuild()
+        {
+           
             subject.SetExchange(expectedExchange);
 
             subject.ExchangeType = expectedType;
@@ -128,7 +159,6 @@ namespace rabbit_api.API.Test
 
             mockChannel.Verify(c => c.QueueDeclare(expectedQueue, expectedDurable,
            expectedExclusive, expectedAutoDelete, expectedArguments),Times.Never);
-
 
         }
     }

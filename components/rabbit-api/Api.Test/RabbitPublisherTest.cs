@@ -16,11 +16,13 @@ namespace rabbit_api.Api.Test
         private Mock<IModel> mockedChannel = new Mock<IModel>();
         private RabbitPublisher subject;
         private Mock<IBasicProperties> basicProperties = new Mock<IBasicProperties>();
+        private readonly bool confirmPublish = true;
 
         [TestInitialize]
         public void InitializeRabbitPublisherTest()
         {
-            subject = new RabbitPublisher(mockedChannel.Object, exchange, basicProperties.Object);
+
+            subject = new RabbitPublisher(mockedChannel.Object, exchange, basicProperties.Object,confirmPublish);
         }
 
         [TestMethod]
@@ -44,15 +46,7 @@ namespace rabbit_api.Api.Test
         }
 
 
-        [TestMethod]
-        public void Publish_ThrowsArgumentWhenBodyEmpty()
-        {
-            byte[] body = { };
-            string routingKey = null;
-            Assert.ThrowsException<ArgumentException>(() =>
-            subject.Publish(body, routingKey));
-
-        }
+          
 
         [TestMethod]
         public void Publish_RoutingKeyCannotBeNull()
@@ -63,15 +57,28 @@ namespace rabbit_api.Api.Test
             subject.Publish(body, routingKey));
 
         }
+        [TestMethod]
+        public void Publish_DoesWait_WhenNotConfirm()
+        {
+            this.subject = new RabbitPublisher(mockedChannel.Object, exchange, basicProperties.Object,false);
+
+            byte[] body = Encoding.UTF8.GetBytes("hello");
+            string routingKey = "";
+            subject.Publish(body, routingKey);
+
+            mockedChannel.Verify(c => c.WaitForConfirms(It.IsAny<TimeSpan>()),Times.Never);
+        }
 
         [TestMethod]
-        public void Publish()
+        public void Publish_ConfirmPublish()
         {
             byte[] body = Encoding.UTF8.GetBytes("hello");
             string routingKey = "";
 
 
             subject.Publish(body, routingKey);
+
+            mockedChannel.Verify(c => c.WaitForConfirms(It.IsAny<TimeSpan>()));
         }
     }
 }
