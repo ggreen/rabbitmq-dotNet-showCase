@@ -13,21 +13,30 @@ namespace rabbit_demo_producer
 
             var exchange = config.GetProperty("EXCHANGE");
             var message = config.GetProperty("MESSAGE");
-            string routingKey = config.GetProperty("ROUTING_KEY","");
-              RabbitExchangeType type = Enum.Parse<RabbitExchangeType>(config.GetProperty("EXCHANGE_TYPE"));
+            string routingKey = config.GetProperty("ROUTING_KEY", "");
+            RabbitExchangeType type = Enum.Parse<RabbitExchangeType>(config.GetProperty("EXCHANGE_TYPE"));
 
-            Rabbit subject = Rabbit.Connect();
+            int repeatCount = config.GetPropertyInteger("REPEAT_COUNT",1);
 
-            var msg = Encoding.UTF8.GetBytes(message);
-            RabbitPublisher publisher = subject.PublishBuilder().
-            SetExchange(exchange)
-            .SetExchangeType(type)
-            .Build();
+            using (Rabbit subject = Rabbit.Connect())
+            {
 
- 
-            publisher.Publish(msg, routingKey);
-            Console.WriteLine($"Sent {message}");
+                var msg = Encoding.UTF8.GetBytes(message);
+                var builder = subject.PublishBuilder().
+                SetExchange(exchange)
+                .SetExchangeType(type);
 
+                using (RabbitPublisher publisher = builder.Build())
+                {
+
+                    for (int i = 0; i < repeatCount; i++)
+                    {
+                        publisher.Publish(msg, routingKey);
+                    }
+                    
+                    Console.WriteLine($"Sent {message} {repeatCount} time(s)");
+                }
+            }
         }
     }
 }

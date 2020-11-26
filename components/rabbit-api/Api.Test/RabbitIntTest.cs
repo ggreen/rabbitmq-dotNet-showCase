@@ -7,7 +7,7 @@ using RabbitMQ.Client.Events;
 
 namespace rabbit_api.API.Test
 {
-    [TestClass]
+    //[TestClass]
     public class RabbitIntTest
     {
         private string exchange = "myexchange";

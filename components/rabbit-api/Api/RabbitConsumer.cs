@@ -1,9 +1,10 @@
+using System;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
 namespace rabbit_api.API
 {
-    public class RabbitConsumer
+    public class RabbitConsumer : IDisposable
     {
         private readonly IModel channel;
         private readonly string queue;
@@ -16,7 +17,11 @@ namespace rabbit_api.API
             this.autoAck = autoAck;
         }
 
-       
+        public void Dispose()
+        {
+            this.channel.Close();
+        }
+
         public void RegisterReceiver(ReceiveMessage receiver)
         {
             var consumer = new EventingBasicConsumer(channel);

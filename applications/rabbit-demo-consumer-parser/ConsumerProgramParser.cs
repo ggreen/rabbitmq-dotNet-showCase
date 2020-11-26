@@ -25,6 +25,7 @@ namespace rabbit_demo_consumer_parser
             var consumer = subject.ConsumerBuilder()
             .SetExchange(exchange)
             .SetExchangeType(type)
+            .UseQuorumQueues()
             .AddQueue(queue,routingKey)
             .Build();
 

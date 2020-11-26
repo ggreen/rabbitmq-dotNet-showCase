@@ -13,32 +13,37 @@ namespace rabbit_api.API.Test
     [TestClass]
     public class RabbitTest
     {
+        Rabbit subject;        
         private string topic = "t";
         private string queue = "q";
         private String expected = "{}";
+        private string routingKey = "";
+        private IDictionary<string, object> args = new Dictionary<string, object>();
+        
+        private Mock<IConnectionFactory> mockFactory = new Mock<IConnectionFactory>();
+        
+        private Mock<IConnection> mockConnection = new Mock<IConnection>();
+        private Mock<IModel> mockChannel = new Mock<IModel>();
+        private Mock<IBasicProperties> mockProperties = new Mock<IBasicProperties>();
 
-        [TestMethod]
-        public void Publish()
+        [TestInitialize]
+        public void InitializeRabbitTest()
         {
-            string routingKey = "";
-            IDictionary<string, object> args = new Dictionary<string, object>();
-            var mockFactory = new Mock<IConnectionFactory>();
-            var mockConnection = new Mock<IConnection>();
-            var mockChannel = new Mock<IModel>();
-            var mockProperties = new Mock<IBasicProperties>();
-
             mockFactory.Setup( f => f.CreateConnection()).Returns(mockConnection.Object);
             mockConnection.Setup(c => c.CreateModel()).Returns(mockChannel.Object);
             mockChannel.Setup(c=> c.CreateBasicProperties()).Returns(mockProperties.Object);
             
-            Rabbit subject = new Rabbit(mockFactory.Object);
+            subject = new Rabbit(mockFactory.Object);
+        }
+
+        [TestMethod]
+        public void Publish()
+        {
 
             var consumer = subject.ConsumerBuilder()
             .SetExchange(topic)
             .AddQueue(queue,routingKey)
             .Build();
-
-            // consumer.RegisterReceiver(reciever);
 
             var msg = Encoding.UTF8.GetBytes(expected);
             RabbitPublisher publisher = subject.PublishBuilder().
@@ -50,6 +55,17 @@ namespace rabbit_api.API.Test
            publisher.Publish(msg,routingKey);
 
 
+        }
+
+        [TestMethod]
+        public void Dispose()
+        {
+            
+            using(subject){
+
+            }
+
+            mockConnection.Verify( c => c.Close());
         }
 
      

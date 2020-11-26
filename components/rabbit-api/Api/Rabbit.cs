@@ -7,7 +7,7 @@ using Imani.Solutions.Core.API.Util;
 
 namespace rabbit_api.API
 {
-    public class Rabbit
+    public class Rabbit : IDisposable
     {
         private readonly IConnectionFactory factory;
         private IConnection connection;
@@ -42,6 +42,9 @@ namespace rabbit_api.API
             return new Rabbit(host,port);
         }
 
-      
+        public void Dispose()
+        {
+            this.connection.Close();
+        }
     }
 }

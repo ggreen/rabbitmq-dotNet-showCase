@@ -10,27 +10,31 @@ namespace rabbit_api.Api.Test
     [TestClass]
     public class RabbitConsumerTest
     {
+        private string queue = "queue";
+        private bool autoAck = false;
+        private Mock<IModel> mockedChannel = new Mock<IModel>();
+        private RabbitConsumer subject;
+
+        [TestInitialize]
+        public void InitializeRabbitConsumerTest()
+        {
+            subject = new RabbitConsumer(mockedChannel.Object, queue,autoAck);
+        }
+
+        [TestMethod]
+        public void Dispose()
+        {
+            using(subject)
+            {
+
+            }
+            mockedChannel.Verify(c => c.Close());
+        }
+
         [TestMethod]
         public void Consume()
         {
-            var mockedChannel = new Mock<IModel>();
-
-            string queue = "queue";
-            bool autoAck = false;
-            var channel = mockedChannel;
-            //channel.Setup(c => c.BasicConsume(queue,autoAck,It.IsAny<EventingBasicConsumer>()));
-
-
-            var subject = new RabbitConsumer(channel.Object, queue,autoAck);
             subject.RegisterReceiver(receiver);
-
-            // mockedChannel.Verify( c => c.BasicConsume(queue,autoAck,It.IsAny<EventingBasicConsumer>()));
-
-            /*
-            channel.BasicConsume(queue: queue,
-                                autoAck: autoAck,
-                                consumer: consumer);
-                             */
             
         }
 

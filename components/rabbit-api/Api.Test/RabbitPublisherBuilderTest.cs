@@ -129,7 +129,6 @@ namespace rabbit_api.API.Test
             mockChannel.Verify(c => c.QueueDeclare(expectedQueue, expectedDurable,
            expectedExclusive, expectedAutoDelete, expectedArguments),Times.Never);
 
-            mockChannel.Verify(c => c.QueueBind(expectedQueue, expectedExchange, expectedRoutingKey, expectedArguments));
 
         }
     }
