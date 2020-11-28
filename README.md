@@ -17,7 +17,7 @@ PROPERTY            | Notes    | Default
 RABBIT_HOST         | Host name | localhost
 RABBIT_PORT         | Listen port | 5672
 RABBIT_CONNECTION_RETRY_SECS         | Automatic reconnect time interval | 15
-RABBIT_VIRTUAL_HOST | The rabbit virtual host | /'
+RABBIT_VIRTUAL_HOST | The rabbit virtual host | /
 RABBIT_USERNAME | The rabbit username |
 RABBIT_PASSWORD | The rabbit password |
 RABBIT_CLIENT_NAME | The client provided name | 
