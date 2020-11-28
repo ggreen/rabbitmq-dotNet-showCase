@@ -56,10 +56,21 @@ RABBIT_PREFETCH_LIMIT | Prefetch limit (mainly for consumers) | 1000
   - Set the prefetch limit (round trip latency/processing time) (ex: MAX 1K)
 
 ## Server Side
+
+Many of these tips are based on an [ERG Solutions best practices video](https://www.youtube.com/watch?v=HzPOQsMWrGQ)
+
 - Use 3 Node Rabbit MQ cluster 
 - Use lazy queues for larger queues that ling longer on server (example: batch processing)
 - Limit number of queues (less than 10 queues)
 - Queue are single thread (est: 50K/s); For greater throughput you can use Consistent Hash or sharing plugins
 - Reduce HA batch-sync-size to prevent introducing network partition dues to server pauses related to synchronize large batch sizes
 - Prefer TCP keep alives over heart beats
+  - tcp_keepalive_time=2 minutes 
+  - tcp_keepalive_intv1=15
 - Increase net_tick tine to 90-120s (default is 60s)
+- XFS is the recommended file system
+- export ERL_CRASH_DUMP_SECONDS=1
+- export RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS="+hmqd off_heap"
+- Reduce Embed msg. Default is $4K in queue index. Recommended disable (0).
+- Limit RSA not used
+- If over 10K connections increase TCP buffer size (ex: sndbuf=8192, recbuf=8192)
