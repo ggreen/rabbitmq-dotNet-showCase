@@ -4,6 +4,11 @@ using RabbitMQ.Client;
 
 namespace rabbit_api.API
 {
+    /// <summary>
+    /// Wrapper the publishing Rabbit messages.
+    /// 
+    /// author: Gregory Green
+    /// </summary>
     public class RabbitPublisher : IDisposable
     {
         private readonly IBasicProperties basicProperties;
@@ -13,7 +18,7 @@ namespace rabbit_api.API
 
         private TimeSpan waitFromConfirmaiton;
 
-        private int WAIT_FOR_CONFIRMATION_SECONDS = new ConfigSettings().GetPropertyInteger("WAIT_FOR_CONFIRMATION_SECONDS",30);
+        private int WAIT_FOR_CONFIRMATION_SECONDS = new ConfigSettings().GetPropertyInteger("RABBIT_WAIT_FOR_CONFIRMATION_SECS",30);
 
 
         public RabbitPublisher(IModel channel, string exchange, IBasicProperties basicProperties, bool confirmPublish)

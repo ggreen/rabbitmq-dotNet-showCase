@@ -21,16 +21,17 @@ namespace rabbit_api.API
         private bool expectedExclusive = true;
         private string expectedRoutingKey = "myKey";
         private Tuple<string, string> expectedTuple;
-        private IDictionary<string, object> expectedExchangeArguments;
+        private IDictionary<string, object> expectedExchangeArguments = null;
         private readonly string expectedSingleActiveConsumerProp = "x-single-active-consumer";
         private readonly string expectedQuorumQueueProp = "x-queue-type";
         private readonly string expectedQuorumQueueValue = "quorum";
+        private readonly ushort expectedPreFetchLimit = 100;
 
         [TestInitialize]
         public void InitializeRabbitConsumerBuilderTest()
         {
             mockChannel = new Mock<IModel>();
-            subject = new RabbitConsumerBuilder(mockChannel.Object);
+            subject = new RabbitConsumerBuilder(mockChannel.Object,expectedPreFetchLimit);
             expectedTuple = new Tuple<string, string>(expectedQueue, expectedRoutingKey);
         }
 
@@ -163,8 +164,17 @@ namespace rabbit_api.API
             expectedQueueArguments = new Dictionary<string,object>();
             expectedQueueArguments["x-queue-type"] = "quorum";
 
-
             VerifyBuild();
+        }
+
+        [TestMethod]
+        public void SetQosPreFetchLimit()
+        {
+            ushort expected = 1000;
+            RabbitConsumerBuilder outSubject = subject.SetQosPreFetchLimit(expected);
+
+            Assert.IsNotNull(outSubject);
+            Assert.AreEqual(expected,outSubject.QosPreFetchLimit);
         }
 
         private void VerifyBuild()
@@ -186,6 +196,8 @@ namespace rabbit_api.API
             expectedDurable,
             expectedAutoDelete,
             expectedExchangeArguments));
+
+            mockChannel.Verify( c => c.BasicQos(0,expectedPreFetchLimit,false));
 
             mockChannel.Verify(c => c.QueueDeclare(expectedQueue, expectedDurable,
            expectedExclusive, expectedAutoDelete, expectedQueueArguments));

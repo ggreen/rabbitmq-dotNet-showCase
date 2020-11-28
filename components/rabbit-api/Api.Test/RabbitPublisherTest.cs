@@ -12,7 +12,6 @@ namespace rabbit_api.Api.Test
     public class RabbitPublisherTest
     {
         private string exchange = "exchange";
-        private bool autoAck = false;
         private Mock<IModel> mockedChannel = new Mock<IModel>();
         private RabbitPublisher subject;
         private Mock<IBasicProperties> basicProperties = new Mock<IBasicProperties>();

@@ -1,16 +1,28 @@
 using System;
 using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
 
 namespace rabbit_api.API
 {
+    /// <summary>
+    /// Implements a builder pattern for creating a publisher with needed settings.
+    /// 
+    /// author: Gregory Green
+    /// </summary>
     public class RabbitPublisherBuilder : RabbitBuilder
     {
         public bool Persistent { get; private set; }
         public bool IsConfirmPublish { get; private set; }
 
-        public RabbitPublisherBuilder(IModel channel) : base(channel)
+        public RabbitPublisherBuilder(IModel channel,ushort qosPreFetchLimit) : base(channel,qosPreFetchLimit)
         {
             Persistent = true;
+            channel.BasicReturn += HandleReturn;
+        }
+
+        private void HandleReturn(object sender, BasicReturnEventArgs args)
+        {
+            Console.WriteLine($"WARNING: Returned Reply:{args.ReplyText} RoutingKey:{args.RoutingKey} Exchange: {args.Exchange}");
         }
 
         public RabbitPublisherBuilder SetExchange(string exchange)
@@ -21,7 +33,7 @@ namespace rabbit_api.API
 
         public RabbitPublisherBuilder AddQueue(string queue, String routingKey)
         {
-            this.AddQueueRoutingKey(queue,routingKey);
+            this.AddQueueRoutingKey(queue, routingKey);
             return this;
         }
 
@@ -32,18 +44,22 @@ namespace rabbit_api.API
         }
         public RabbitPublisher Build()
         {
-            if(IsConfirmPublish)
+            if (IsConfirmPublish)
             {
-                this.channel.ConfirmSelect();    
+                this.channel.ConfirmSelect();
             }
 
             ConstructExchange();
-         
+
 
             IBasicProperties basicProperties = channel.CreateBasicProperties();
             basicProperties.Persistent = Persistent;
+            if (Persistent)
+            {
+                basicProperties.DeliveryMode = 2; // persistent
+            }
 
-            return new RabbitPublisher(this.channel,Exchange,basicProperties,IsConfirmPublish);
+            return new RabbitPublisher(this.channel, Exchange, basicProperties, IsConfirmPublish);
         }
 
         public RabbitPublisherBuilder SetExchangeType(RabbitExchangeType type)
@@ -55,6 +71,12 @@ namespace rabbit_api.API
         public RabbitPublisherBuilder SetConfirmPublish()
         {
             this.IsConfirmPublish = true;
+            return this;
+        }
+
+        public RabbitPublisherBuilder SetQosPreFetchLimit(ushort qos)
+        {
+            this.QosPreFetchLimit =qos;
             return this;
         }
     }

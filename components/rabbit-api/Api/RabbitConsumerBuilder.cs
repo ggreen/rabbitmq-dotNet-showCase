@@ -12,8 +12,9 @@ namespace rabbit_api.API
         private readonly object QUORUM_QUEUE_TYPE = "quorum";
 
         public bool AutoAck { get; set; }
+        
 
-        public RabbitConsumerBuilder(IModel channel) : base(channel)
+        public RabbitConsumerBuilder(IModel channel,ushort qosPreFetchLimit) : base(channel,qosPreFetchLimit)
         {
         }
 
@@ -63,6 +64,13 @@ namespace rabbit_api.API
         public RabbitConsumerBuilder UseQuorumQueues()
         {
             this.QueueArguments[QUEUE_TYPE_PROP]= QUORUM_QUEUE_TYPE;
+            return this;
+        }
+
+        public RabbitConsumerBuilder SetQosPreFetchLimit(ushort qos)
+        {
+            this.QosPreFetchLimit = qos;
+
             return this;
         }
     }

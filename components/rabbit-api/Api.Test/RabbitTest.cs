@@ -25,6 +25,7 @@ namespace rabbit_api.API.Test
         private Mock<IConnection> mockConnection = new Mock<IConnection>();
         private Mock<IModel> mockChannel = new Mock<IModel>();
         private Mock<IBasicProperties> mockProperties = new Mock<IBasicProperties>();
+        private ushort expectedPrefetch = 22;
 
         [TestInitialize]
         public void InitializeRabbitTest()
@@ -32,8 +33,17 @@ namespace rabbit_api.API.Test
             mockFactory.Setup( f => f.CreateConnection()).Returns(mockConnection.Object);
             mockConnection.Setup(c => c.CreateModel()).Returns(mockChannel.Object);
             mockChannel.Setup(c=> c.CreateBasicProperties()).Returns(mockProperties.Object);
+
             
-            subject = new Rabbit(mockFactory.Object);
+            subject = new Rabbit(mockFactory.Object,expectedPrefetch);
+         
+        }
+
+        [TestMethod]
+        public void Constructor()
+        {
+            mockFactory.Verify(f => f.CreateConnection());
+               Assert.AreEqual(expectedPrefetch,subject.QosPreFetchLimit);
         }
 
         [TestMethod]

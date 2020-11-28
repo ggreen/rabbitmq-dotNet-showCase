@@ -22,6 +22,7 @@ namespace rabbit_api.API.Test
         private string expectedRoutingKey = "myKey";
         private Mock<IBasicProperties> mockProperties;
         private Tuple<string, string> expectedTuple;
+        private readonly ushort expectedPreFetchLimit = 1000;
 
         [TestInitialize]
         public void InitializeRabbitConsumerBuilderTest()
@@ -33,7 +34,7 @@ namespace rabbit_api.API.Test
             mockChannel = new Mock<IModel>();
             mockChannel.Setup(c => c.CreateBasicProperties()).Returns(mockProperties.Object);
 
-            subject = new RabbitPublisherBuilder(mockChannel.Object);
+            subject = new RabbitPublisherBuilder(mockChannel.Object,expectedPreFetchLimit);
         }
 
 
@@ -62,6 +63,18 @@ namespace rabbit_api.API.Test
         { 
             Assert.ThrowsException<ArgumentException>
             (()=> subject.AddQueue(expectedQueue,null));
+        }
+
+       [TestMethod]
+        public void SetQosPreFetchLimit()
+        {
+
+            ushort expected = 1000;
+            RabbitPublisherBuilder outSubject = subject.SetQosPreFetchLimit(expected);
+
+            Assert.IsNotNull(outSubject);
+            Assert.AreEqual(expected,outSubject.QosPreFetchLimit);
+
         }
         
         [TestMethod]
@@ -156,6 +169,8 @@ namespace rabbit_api.API.Test
             expectedDurable,
             expectedAutoDelete,
             expectedArguments));
+
+            mockChannel.Verify( c => c.BasicQos(0,expectedPreFetchLimit,false));
 
             mockChannel.Verify(c => c.QueueDeclare(expectedQueue, expectedDurable,
            expectedExclusive, expectedAutoDelete, expectedArguments),Times.Never);
