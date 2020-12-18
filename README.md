@@ -135,7 +135,7 @@ Many of these tips are based on an [ERLang Solutions best practices video](https
 - Assert proper exception logging exists within the client code
 - Assert [ConnectionFactory](https://rabbitmq.github.io/rabbitmq-dotnet-client/api/RabbitMQ.Client.ConnectionFactory.html).AutomaticRecoveryEnabled = true
 - Set [ConnectionFactory](https://rabbitmq.github.io/rabbitmq-dotnet-client/api/RabbitMQ.Client.ConnectionFactory.html).NetworkRecoveryInterval equals to an appropriate value (ex: 15 seconds)
--  Registration a handler for blocked and unblocked connections
+-  Register a handler for blocked and unblocked connections
 ```c#
 //Example
 connection.ConnectionBlocked += HandleBlocked;
