@@ -2,7 +2,7 @@
 
 
 This is reference DotNet Core client/wrapper for connecting with [RabbitMQ](https://www.rabbitmq.com/).
-This demonstrators best practice development techniques for producer and consumers.
+This demonstrators best practice development techniques for producers and consumers.
 
 
 Projects                                                                                                    | Notes
@@ -16,8 +16,8 @@ Projects                                                                        
 ## Environments or Input Properties
 
 
-Thise module using the [ConfigSettings](https://github.com/imani-solutions/Imani.Solutions.Core.DotNet/blob/master/API/Util/ConfigSettings.cs) object from the open source [Imani Solutions DotNet API](https://github.com/imani-solutions/Imani.Solutions.Core.DotNet).
-This support getting string, integer or encrypted passwords from input arguments or environment variables.
+Thise module uses the [ConfigSettings](https://github.com/imani-solutions/Imani.Solutions.Core.DotNet/blob/master/API/Util/ConfigSettings.cs) object from the open source [Imani Solutions DotNet API](https://github.com/imani-solutions/Imani.Solutions.Core.DotNet).
+This supports getting string, numbers or encrypted passwords from input arguments or environment variables.
 
 
 You can set the properties using an environment variable or input argument (prefixed with --PROPERTY_NAME).
@@ -83,7 +83,7 @@ publisher.Publish(msg, routingKey);
 - Enable auto reconnect for connections
 - Use one connection per process
 - Use one channel per thread
-- Enable handle to detected blocked connections'
+- Enable handlers to detect blocked connections'
 - Use Durable exchanges, durable queues and persistent messages for reliablity
 - Set auto delete on temporary queues
 - Set client name to assist with identifying application connections
@@ -93,7 +93,7 @@ publisher.Publish(msg, routingKey);
 ### Client Publisher Side
 
 - Use Publisher confirms for consistency
-- Added handler for BasicReturn when messages not routed to a queue
+- Add a handler for BasicReturn when messages not routed to a queue
 
 
 ### Client Consumer Side
@@ -109,9 +109,9 @@ publisher.Publish(msg, routingKey);
 Many of these tips are based on an [ERLang Solutions best practices video](https://www.youtube.com/watch?v=HzPOQsMWrGQ)
 
 - Use 3 Node Rabbit MQ cluster 
-- Use lazy queues for larger queues were messages live longer on server (example: batch processing)
+- Use lazy queues for larger queues where messages live longer on server (example: batch processing)
 - Limit number of queues (less than 10 queues)
-- Queue are single threaded (est: 50K/s); For greater throughput you can use Consistent Hash or sharing plugins
+- Queues are single threaded (est: 50K/s); For greater throughput you can use Consistent Hash or sharing plugins
 - Reduce HA batch-sync-size to prevent introducing network partition dues to server pauses related to synchronize large batch sizes
 - Prefer TCP keep alives over heart beats
   - tcp_keepalive_time=2 minutes 
@@ -130,7 +130,7 @@ Many of these tips are based on an [ERLang Solutions best practices video](https
 
 ## Consumers 
 
-### Not recieving produced message
+### Not receiving produced message
 
 - Assert proper exception logging exists within the client code
 - Assert [ConnectionFactory](https://rabbitmq.github.io/rabbitmq-dotnet-client/api/RabbitMQ.Client.ConnectionFactory.html).AutomaticRecoveryEnabled = true
