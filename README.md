@@ -23,6 +23,7 @@ You can set the properties using an environment variable or input argument (pref
 
 PROPERTY            | Notes    | Default
 ------------------  | -------- | ----------
+CRYPTION_KEY        | Password encryption salt key | 
 RABBIT_HOST         | Host name | localhost
 RABBIT_PORT         | Listen port | 5672
 RABBIT_CONNECTION_RETRY_SECS         | Automatic reconnect time interval | 15
