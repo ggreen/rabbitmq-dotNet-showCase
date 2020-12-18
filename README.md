@@ -10,7 +10,7 @@ Projects                                                                        
 [applications/rabbit-demo-consumer](https://github.com/ggreen/rabbitmq-dotNet-showCase/tree/main/applications/rabbit-demo-consumer) | Consumer example
 [applications/rabbit-demo-consumer-parser](https://github.com/ggreen/rabbitmq-dotNet-showCase/tree/main/applications/rabbit-demo-consumer-parser) | Consumer that also parsing the payload
 [applications/rabbit-demo-producer](https://github.com/ggreen/rabbitmq-dotNet-showCase/tree/main/applications/rabbit-demo-producer) | Producer example
-[applications/password-encryption](https://github.com/ggreen/rabbitmq-dotNet-showCase/tree/main/applications/password-encryption) | 
+[applications/password-encryption](https://github.com/ggreen/rabbitmq-dotNet-showCase/tree/main/applications/password-encryption) | Generate encrypted password to be placed in environment variable
 
 ## Environments or Input Properties
 
