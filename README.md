@@ -113,7 +113,7 @@ Many of these tips are based on an [ERLang Solutions best practices video](https
 - Prefer TCP keep alives over heart beats
   - tcp_keepalive_time=2 minutes 
   - tcp_keepalive_intv1=15
-- Increase net_tick tine to 90-120s (default is 60s)
+- Increase net_tick time to 90-120s (default is 60s)
 - XFS is the recommended file system
 - export ERL_CRASH_DUMP_SECONDS=1
 - export RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS="+hmqd off_heap"
