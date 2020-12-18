@@ -29,7 +29,7 @@ RABBIT_PORT         | Listen port | 5672
 RABBIT_CONNECTION_RETRY_SECS         | Automatic reconnect time interval | 15
 RABBIT_VIRTUAL_HOST | The rabbit virtual host | /
 RABBIT_USERNAME | The rabbit username |
-RABBIT_PASSWORD | The rabbit password |
+ENCRYPTED_PASSWORD | The encrypted rabbit password with value from [applications/password-encryption](https://github.com/ggreen/rabbitmq-dotNet-showCase/tree/main/applications/password-encryption) |
 RABBIT_CLIENT_NAME | The client provided name | 
 RABBIT_WAIT_FOR_CONFIRMATION_SECS | Publish wait for connection | 30
 RABBIT_PREFETCH_LIMIT | Prefetch limit (mainly for consumers) | 1000
