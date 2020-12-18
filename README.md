@@ -3,6 +3,15 @@
 
 This is reference DotNet Core client/wrapper for connecting with [RabbitMQ](https://www.rabbitmq.com/).
 
+
+Projects                                                                                                    | Notes
+----------------------------------------------------------------------------------------------------------- | --------------------------
+[components/rabbit-api](https://github.com/ggreen/rabbitmq-dotNet-showCase/tree/main/components/rabbit-api) | RabbitMQ client facade API
+[applications/rabbit-demo-consumer](https://github.com/ggreen/rabbitmq-dotNet-showCase/tree/main/applications/rabbit-demo-consumer) | Consumer example
+[applications/rabbit-demo-consumer-parser](https://github.com/ggreen/rabbitmq-dotNet-showCase/tree/main/applications/rabbit-demo-consumer-parser) | Consumer that also parsing the payload
+[applications/rabbit-demo-producer](https://github.com/ggreen/rabbitmq-dotNet-showCase/tree/main/applications/rabbit-demo-producer) | Producer example
+[applications/password-encryption]()
+
 ## Environments or Input Properties
 
 
@@ -25,6 +34,44 @@ RABBIT_WAIT_FOR_CONFIRMATION_SECS | Publish wait for connection | 30
 RABBIT_PREFETCH_LIMIT | Prefetch limit (mainly for consumers) | 1000
 
 
+## Sample Code
+
+## Consumer
+
+```c#
+
+      Rabbit rabbit = Rabbit.Connect();
+            var consumer = rabbit.ConsumerBuilder()
+            .SetExchange(exchange)
+            .AddQueue(queue,expectedRoutingKey)
+            .Build();
+
+            consumer.RegisterReceiver(receiver);
+
+        }
+        private void receiver(IModel channel, object sender, BasicDeliverEventArgs eventArg)
+        {
+            var actual = Encoding.UTF8.GetString(eventArg.Body.ToArray());
+
+            channel.BasicAck(eventArg.DeliveryTag,false);
+        }
+```
+
+Publisher Code
+
+```C#
+
+  var msg = Encoding.UTF8.GetBytes(expectedMsg);
+  RabbitPublisher publisher = subject.PublishBuilder().
+            SetExchange(exchange)
+            .AddQueue(queue,expectedRoutingKey)
+            .Build();
+        
+
+  string routingKey = "";
+  publisher.Publish(msg, routingKey);
+
+```
 
 
 # Best Practices

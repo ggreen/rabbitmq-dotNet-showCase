@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "rabbit-demo-consumer", "app
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "rabbit-demo-consumer-parser", "applications\rabbit-demo-consumer-parser\rabbit-demo-consumer-parser.csproj", "{D2C43006-8E12-43C7-8F6C-74084A2740A0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "password-encryption", "applications\password-encryption\password-encryption.csproj", "{5F4EBEC0-07B9-4BC8-9D20-58DAD70CC1D5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -76,11 +78,24 @@ Global
 		{D2C43006-8E12-43C7-8F6C-74084A2740A0}.Release|x64.Build.0 = Release|Any CPU
 		{D2C43006-8E12-43C7-8F6C-74084A2740A0}.Release|x86.ActiveCfg = Release|Any CPU
 		{D2C43006-8E12-43C7-8F6C-74084A2740A0}.Release|x86.Build.0 = Release|Any CPU
+		{5F4EBEC0-07B9-4BC8-9D20-58DAD70CC1D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F4EBEC0-07B9-4BC8-9D20-58DAD70CC1D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F4EBEC0-07B9-4BC8-9D20-58DAD70CC1D5}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{5F4EBEC0-07B9-4BC8-9D20-58DAD70CC1D5}.Debug|x64.Build.0 = Debug|Any CPU
+		{5F4EBEC0-07B9-4BC8-9D20-58DAD70CC1D5}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5F4EBEC0-07B9-4BC8-9D20-58DAD70CC1D5}.Debug|x86.Build.0 = Debug|Any CPU
+		{5F4EBEC0-07B9-4BC8-9D20-58DAD70CC1D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F4EBEC0-07B9-4BC8-9D20-58DAD70CC1D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5F4EBEC0-07B9-4BC8-9D20-58DAD70CC1D5}.Release|x64.ActiveCfg = Release|Any CPU
+		{5F4EBEC0-07B9-4BC8-9D20-58DAD70CC1D5}.Release|x64.Build.0 = Release|Any CPU
+		{5F4EBEC0-07B9-4BC8-9D20-58DAD70CC1D5}.Release|x86.ActiveCfg = Release|Any CPU
+		{5F4EBEC0-07B9-4BC8-9D20-58DAD70CC1D5}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{33819735-F5A4-4621-98DD-467747E202D0} = {FB1B5899-2586-48F0-94F5-CB17E7674611}
 		{470929A8-9246-4184-BBE4-132A476868D6} = {EE49A928-EE5D-4F63-A94F-872CECBCD8FE}
 		{52382ADA-2410-4FF1-8ADC-4DF8781E0C7F} = {EE49A928-EE5D-4F63-A94F-872CECBCD8FE}
 		{D2C43006-8E12-43C7-8F6C-74084A2740A0} = {EE49A928-EE5D-4F63-A94F-872CECBCD8FE}
+		{5F4EBEC0-07B9-4BC8-9D20-58DAD70CC1D5} = {EE49A928-EE5D-4F63-A94F-872CECBCD8FE}
 	EndGlobalSection
 EndGlobal

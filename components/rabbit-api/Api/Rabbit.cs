@@ -13,6 +13,8 @@ namespace rabbit_api.API
         private static readonly int DEFAULT_CONNECTION_RETRY_SECS = 15;
         private IConnection connection;
 
+        private static ConfigSettings config = new ConfigSettings();
+
         internal ushort QosPreFetchLimit { get;  private set; }
 
         private Rabbit(string host, int port, string virtualHost, string clientProvidedName, int networkRecoveryIntervalSecs, ushort qosPreFetchLimit, string userName, char[] password) : 
@@ -25,7 +27,7 @@ namespace rabbit_api.API
                 AutomaticRecoveryEnabled = true,
                 NetworkRecoveryInterval = TimeSpan.FromSeconds(networkRecoveryIntervalSecs),
                 UserName = userName,
-                Password = new string(password)
+                Password = new string(config.GetPropertyPassword("ENCRYPTED_PASSWORD"))
             },
             qosPreFetchLimit
             )
@@ -75,7 +77,7 @@ namespace rabbit_api.API
             string virtualHost = config.GetProperty("RABBIT_VIRTUAL_HOST","/");
             string clientName = config.GetProperty("RABBIT_CLIENT_NAME");
             string userName = config.GetProperty("RABBIT_USERNAME");
-            char[] password = config.GetProperty("RABBIT_PASSWORD").ToCharArray();
+            char[] password = config.GetProperty("ENCRYPTED_PASSWORD").ToCharArray();
             ushort qosPreFetchLimit = ushort.Parse(config.GetProperty("RABBIT_PREFETCH_LIMIT","1000"));
             return new Rabbit(host, port,virtualHost, clientName,networkRecoveryIntervalSecs,qosPreFetchLimit,userName,password);
         }
