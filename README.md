@@ -41,36 +41,35 @@ RABBIT_PREFETCH_LIMIT | Prefetch limit (mainly for consumers) | 1000
 
 ```c#
 
-      Rabbit rabbit = Rabbit.Connect();
-            var consumer = rabbit.ConsumerBuilder()
-            .SetExchange(exchange)
-            .AddQueue(queue,expectedRoutingKey)
-            .Build();
+Rabbit rabbit = Rabbit.Connect();
+var consumer = rabbit.ConsumerBuilder()
+                      .SetExchange(exchange)
+                      .AddQueue(queue,expectedRoutingKey)
+                      .Build();
 
-            consumer.RegisterReceiver(receiver);
+consumer.RegisterReceiver(receiver);
 
-        }
-        private void receiver(IModel channel, object sender, BasicDeliverEventArgs eventArg)
-        {
-            var actual = Encoding.UTF8.GetString(eventArg.Body.ToArray());
+private void receiver(IModel channel, object sender, BasicDeliverEventArgs eventArg)
+{
+  var actual = Encoding.UTF8.GetString(eventArg.Body.ToArray());
 
-            channel.BasicAck(eventArg.DeliveryTag,false);
-        }
+  channel.BasicAck(eventArg.DeliveryTag,false);
+}
 ```
 
 Publisher Code
 
 ```C#
 
-  var msg = Encoding.UTF8.GetBytes(expectedMsg);
-  RabbitPublisher publisher = subject.PublishBuilder().
+var msg = Encoding.UTF8.GetBytes(expectedMsg);
+RabbitPublisher publisher = subject.PublishBuilder().
             SetExchange(exchange)
             .AddQueue(queue,expectedRoutingKey)
             .Build();
         
 
-  string routingKey = "";
-  publisher.Publish(msg, routingKey);
+string routingKey = "";
+publisher.Publish(msg, routingKey);
 
 ```
 
@@ -84,7 +83,6 @@ Publisher Code
 - Use one channel per thread
 - Enable handle to detected blocked connections'
 - Use Durable exchanges, durable queues and persistent messages for reliablity
-- Set queue message limites (ex: 1 to 10 million messages)
 - Set auto delete on temporary queues
 - Set client name to assist with identifying application connections
 
@@ -105,7 +103,7 @@ Publisher Code
 
 ## Server Side
 
-Many of these tips are based on an [ERG Solutions best practices video](https://www.youtube.com/watch?v=HzPOQsMWrGQ)
+Many of these tips are based on an [ERLang Solutions best practices video](https://www.youtube.com/watch?v=HzPOQsMWrGQ)
 
 - Use 3 Node Rabbit MQ cluster 
 - Use lazy queues for larger queues that ling longer on server (example: batch processing)
