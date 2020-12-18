@@ -106,9 +106,9 @@ publisher.Publish(msg, routingKey);
 Many of these tips are based on an [ERLang Solutions best practices video](https://www.youtube.com/watch?v=HzPOQsMWrGQ)
 
 - Use 3 Node Rabbit MQ cluster 
-- Use lazy queues for larger queues that ling longer on server (example: batch processing)
+- Use lazy queues for larger queues were messages live longer on server (example: batch processing)
 - Limit number of queues (less than 10 queues)
-- Queue are single thread (est: 50K/s); For greater throughput you can use Consistent Hash or sharing plugins
+- Queue are single threaded (est: 50K/s); For greater throughput you can use Consistent Hash or sharing plugins
 - Reduce HA batch-sync-size to prevent introducing network partition dues to server pauses related to synchronize large batch sizes
 - Prefer TCP keep alives over heart beats
   - tcp_keepalive_time=2 minutes 
