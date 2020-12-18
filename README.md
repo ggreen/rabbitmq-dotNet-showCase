@@ -2,20 +2,22 @@
 
 
 This is reference DotNet Core client/wrapper for connecting with [RabbitMQ](https://www.rabbitmq.com/).
+This demonstrators best practice development techniques for producer and consumers.
 
 
 Projects                                                                                                    | Notes
 ----------------------------------------------------------------------------------------------------------- | --------------------------
 [components/rabbit-api](https://github.com/ggreen/rabbitmq-dotNet-showCase/tree/main/components/rabbit-api) | RabbitMQ client facade API
-[applications/rabbit-demo-consumer](https://github.com/ggreen/rabbitmq-dotNet-showCase/tree/main/applications/rabbit-demo-consumer) | Consumer example
-[applications/rabbit-demo-consumer-parser](https://github.com/ggreen/rabbitmq-dotNet-showCase/tree/main/applications/rabbit-demo-consumer-parser) | Consumer that also parsing the payload
-[applications/rabbit-demo-producer](https://github.com/ggreen/rabbitmq-dotNet-showCase/tree/main/applications/rabbit-demo-producer) | Producer example
-[applications/password-encryption](https://github.com/ggreen/rabbitmq-dotNet-showCase/tree/main/applications/password-encryption) | Generate encrypted password to be placed in environment variable
+[applications/rabbit-demo-consumer](https://github.com/ggreen/rabbitmq-dotNet-showCase/tree/main/applications/rabbit-demo-consumer) | Consumer example application
+[applications/rabbit-demo-consumer-parser](https://github.com/ggreen/rabbitmq-dotNet-showCase/tree/main/applications/rabbit-demo-consumer-parser) | Consumer  application that also parses the message payload
+[applications/rabbit-demo-producer](https://github.com/ggreen/rabbitmq-dotNet-showCase/tree/main/applications/rabbit-demo-producer) | Producer example application
+[applications/password-encryption](https://github.com/ggreen/rabbitmq-dotNet-showCase/tree/main/applications/password-encryption) | Generates a encrypted password based on a salt "CRYPTION_KEY" to be placed in an environment variable
 
 ## Environments or Input Properties
 
 
-The module using the [ConfigSettings](https://github.com/imani-solutions/Imani.Solutions.Core.DotNet/blob/master/API/Util/ConfigSettings.cs) object from the open source [Imani Solutions DotNet API](https://github.com/imani-solutions/Imani.Solutions.Core.DotNet).
+Thise module using the [ConfigSettings](https://github.com/imani-solutions/Imani.Solutions.Core.DotNet/blob/master/API/Util/ConfigSettings.cs) object from the open source [Imani Solutions DotNet API](https://github.com/imani-solutions/Imani.Solutions.Core.DotNet).
+This support getting string, integer or encrypted passwords from input arguments or environment variables.
 
 
 You can set the properties using an environment variable or input argument (prefixed with --PROPERTY_NAME).
@@ -97,9 +99,10 @@ publisher.Publish(msg, routingKey);
 ### Client Consumer Side
 - Use manual ACK for consumers per message
 - Set Prefetch limit for consumers 
-  - If you use dead letter exchanges/queues set to a very high count since DLX do not support  confirmation and can lost messages
-  - Use consumer (push) over get (pull)
   - Set the prefetch limit (round trip latency/processing time) (ex: MAX 1K)
+- If you use dead letter exchanges/queues set to a very high count since DLX do not support  confirmation and can lost messages
+- Use consumer (push) over get (pull)
+ 
 
 ## Server Side
 
@@ -120,3 +123,30 @@ Many of these tips are based on an [ERLang Solutions best practices video](https
 - Reduce Embed msg. Default is $4K in queue index. Recommended disable (0).
 - Limit RSA not used
 - If over 10K connections increase TCP buffer size (ex: sndbuf=8192, recbuf=8192)
+
+
+# Troubleshooting
+
+
+## Consumers 
+
+### Not recieving produced message
+
+- Assert proper exception logging exists within the client code
+- Assert [ConnectionFactory](https://rabbitmq.github.io/rabbitmq-dotnet-client/api/RabbitMQ.Client.ConnectionFactory.html).AutomaticRecoveryEnabled = true
+- Set [ConnectionFactory](https://rabbitmq.github.io/rabbitmq-dotnet-client/api/RabbitMQ.Client.ConnectionFactory.html).NetworkRecoveryInterval equals to an appropriate value (ex: 15 seconds)
+-  Registration a handler for blocked and unblocked connections
+```c#
+//Example
+connection.ConnectionBlocked += HandleBlocked;
+connection.ConnectionUnblocked += HandleUnblocked;
+ private void HandleBlocked(object sender, ConnectionBlockedEventArgs args)
+{
+   Console.WriteLine("WARNING: Connection is now blocked");
+}
+
+public void HandleUnblocked(object sender, EventArgs args)
+{
+   Console.WriteLine("INFO: Connection is now unblocked");
+}
+```
