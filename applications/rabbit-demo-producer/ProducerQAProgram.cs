@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace rabbit_demo_producer
 {
-    class ProducerTestProgram
+    class ProducerQaProgram
     {
         private readonly ConfigSettings config = new ConfigSettings();
         private readonly string exchange;
@@ -21,7 +21,7 @@ namespace rabbit_demo_producer
         private readonly byte[] msg;
         private readonly int producerCount;
 
-        public ProducerTestProgram()
+        public ProducerQaProgram()
         {
 
             exchange = config.GetProperty("EXCHANGE");
@@ -38,7 +38,7 @@ namespace rabbit_demo_producer
 
         static void Main(string[] args)
         {
-            var program = new ProducerTestProgram();
+            var program = new ProducerQaProgram();
             program.Run();
         }
         private void Run()

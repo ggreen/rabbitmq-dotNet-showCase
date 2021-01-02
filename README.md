@@ -87,6 +87,7 @@ publisher.Publish(msg, routingKey);
 - Use Durable exchanges, durable queues and persistent messages for reliablity
 - Set auto delete on temporary queues
 - Set client name to assist with identifying application connections
+- Keep exchange names the same case for producers and consumers
 
 
 
@@ -103,6 +104,7 @@ publisher.Publish(msg, routingKey);
   - Set the prefetch limit (round trip latency/processing time) (ex: MAX 1K)
 - If you use dead letter exchanges/queues set to a very high count since DLX do not support  confirmation and can lost messages
 - Use consumer (push) over get (pull)
+- Name queues based on patterns of routing keys where applicable
  
 
 ## Server Side
@@ -124,6 +126,8 @@ Many of these tips are based on an [ERLang Solutions best practices video](https
 - Reduce Embed msg. Default is $4K in queue index. Recommended disable (0).
 - Limit RSA not used
 - If over 10K connections increase TCP buffer size (ex: sndbuf=8192, recbuf=8192)
+- Set max queue lenght limits when using federated queues on Disaster Recovery (DR) cluster
+  - When using federation set  overflow=drop-head (default) on DR cluster
 
 
 # Troubleshooting
