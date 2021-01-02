@@ -8,6 +8,9 @@ using RabbitMQ.Client.Events;
 
 namespace rabbit_demo_consumer
 {
+    /// <summary>
+    /// Author: Gregory Green
+    /// </summary>
     class ConsumerProgram
     {
         static void Main(string[] args)

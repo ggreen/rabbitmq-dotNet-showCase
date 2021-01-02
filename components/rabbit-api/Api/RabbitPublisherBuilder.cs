@@ -14,7 +14,7 @@ namespace rabbit_api.API
         public bool Persistent { get; private set; }
         public bool IsConfirmPublish { get; private set; }
 
-        public RabbitPublisherBuilder(IModel channel,ushort qosPreFetchLimit) : base(channel,qosPreFetchLimit)
+        public RabbitPublisherBuilder(IModel channel, ushort qosPreFetchLimit) : base(channel, qosPreFetchLimit)
         {
             Persistent = true;
             channel.BasicReturn += HandleReturn;
@@ -54,10 +54,8 @@ namespace rabbit_api.API
 
             IBasicProperties basicProperties = channel.CreateBasicProperties();
             basicProperties.Persistent = Persistent;
-            if (Persistent)
-            {
-                basicProperties.DeliveryMode = 2; // persistent
-            }
+
+            basicProperties.DeliveryMode = 2; // persistent
 
             return new RabbitPublisher(this.channel, Exchange, basicProperties, IsConfirmPublish);
         }
@@ -76,7 +74,7 @@ namespace rabbit_api.API
 
         public RabbitPublisherBuilder SetQosPreFetchLimit(ushort qos)
         {
-            this.QosPreFetchLimit =qos;
+            this.QosPreFetchLimit = qos;
             return this;
         }
     }

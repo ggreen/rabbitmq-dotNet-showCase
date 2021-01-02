@@ -94,6 +94,7 @@ publisher.Publish(msg, routingKey);
 
 - Use Publisher confirms for consistency
 - Add a handler for BasicReturn when messages not routed to a queue
+- Set the mandatory message property to true to prevent Unroutable messages.
 
 
 ### Client Consumer Side

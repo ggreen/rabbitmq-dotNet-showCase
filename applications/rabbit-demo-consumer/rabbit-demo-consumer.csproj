@@ -12,7 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-  <PackageReference Include="Imani.Solutions.Core" Version="0.0.7" />
+  <PackageReference Include="Imani.Solutions.Core" Version="0.0.8" />
   <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
   <PackageReference Include="MSTest.TestAdapter" Version="1.1.18" />
   <PackageReference Include="MSTest.TestFramework" Version="1.1.18" />
@@ -24,6 +24,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\components\rabbit-api\rabbit-api.csproj" />
+    <!-- <ProjectReference Include="\Users\Projects\solutions\imani\dotnet\dev\Imani.Solutions.Core\Imani.Solutions.Core.csproj" /> -->
   </ItemGroup>
 
 </Project>

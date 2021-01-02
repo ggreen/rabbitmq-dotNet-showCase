@@ -5,6 +5,9 @@ using RabbitMQ.Client.Events;
 using System.Collections.Generic;
 using Imani.Solutions.Core.API.Util;
 
+/// <summary>
+/// Author: Gregory Green
+/// </summary>
 namespace rabbit_api.API
 {
     public class Rabbit : IDisposable
@@ -27,7 +30,7 @@ namespace rabbit_api.API
                 AutomaticRecoveryEnabled = true,
                 NetworkRecoveryInterval = TimeSpan.FromSeconds(networkRecoveryIntervalSecs),
                 UserName = userName,
-                Password = new string(config.GetPropertyPassword("ENCRYPTED_PASSWORD"))
+                Password = new string(config.GetPropertyPassword("RABBIT_PASSWORD","".ToCharArray()))
             },
             qosPreFetchLimit
             )
@@ -77,7 +80,7 @@ namespace rabbit_api.API
             string virtualHost = config.GetProperty("RABBIT_VIRTUAL_HOST","/");
             string clientName = config.GetProperty("RABBIT_CLIENT_NAME");
             string userName = config.GetProperty("RABBIT_USERNAME");
-            char[] password = config.GetProperty("ENCRYPTED_PASSWORD").ToCharArray();
+            char[] password = config.GetProperty("RABBIT_PASSWORD").ToCharArray();
             ushort qosPreFetchLimit = ushort.Parse(config.GetProperty("RABBIT_PREFETCH_LIMIT","1000"));
             return new Rabbit(host, port,virtualHost, clientName,networkRecoveryIntervalSecs,qosPreFetchLimit,userName,password);
         }

@@ -5,6 +5,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
+/// <summary>
+/// Author: Gregory Green
+/// </summary>
 namespace rabbit_api.API.Test
 {
     //[TestClass]

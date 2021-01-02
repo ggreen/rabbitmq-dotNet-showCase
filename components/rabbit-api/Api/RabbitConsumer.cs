@@ -2,6 +2,9 @@ using System;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
+/// <summary>
+/// Author: Gregory Green
+/// </summary>
 namespace rabbit_api.API
 {
     public class RabbitConsumer : IDisposable

@@ -1,7 +1,7 @@
 namespace rabbit_api.API
 {
     /// <summary>
-    /// E
+    /// Author: Gregory Green
     /// </summary>
     public enum RabbitExchangeType
     {

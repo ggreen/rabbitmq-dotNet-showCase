@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using RabbitMQ.Client;
 
+/// <summary>
+/// Author: Gregory Green
+/// </summary>
 namespace rabbit_api.API
 {
     public abstract class RabbitBuilder

@@ -6,6 +6,9 @@ using rabbit_api.API;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
+/// <summary>
+/// <author>
+/// </summary>
 namespace rabbit_api.Api.Test
 {
     [TestClass]

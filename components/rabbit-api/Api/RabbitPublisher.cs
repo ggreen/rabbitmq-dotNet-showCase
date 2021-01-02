@@ -47,6 +47,7 @@ namespace rabbit_api.API
 
             channel.BasicPublish(exchange: exchange,
                                  routingKey: routingKey,
+                                 mandatory: true,
                                  basicProperties: basicProperties,
                                  body: body);
 
