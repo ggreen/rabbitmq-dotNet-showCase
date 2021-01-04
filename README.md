@@ -155,3 +155,10 @@ public void HandleUnblocked(object sender, EventArgs args)
    Console.WriteLine("INFO: Connection is now unblocked");
 }
 ```
+
+
+# Troubleshooting
+
+
+- rabbitmq unable to connect to "epmd" (port 4369)
+  - Added host name to /etc/hosts

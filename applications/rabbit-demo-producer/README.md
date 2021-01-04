@@ -11,10 +11,17 @@ export RABBIT_PASSWORD=guest
 
 ## Direct Exchange
 
-```shell
+```shell script
 dotnet run  --EXCHANGE_TYPE=direct  --EXCHANGE=nylaExchange --MESSAGE="{\"id\": \"1\"}" --RABBIT_PORT=5672 --RABBIT_HOST=localhost --ROUTING_KEY=1  --REPEAT_COUNT=2000 --WAIT_FOR_CONFIRMATION_SECONDS=1  --RABBIT_CLIENT_NAME=producer --SLEEP_PERIOD_MS=1000 --PRODUCER_COUNT=5
 
 ```
+
+## RABBIT_URI
+
+```shell script
+dotnet run  --EXCHANGE_TYPE=direct  --EXCHANGE=nylaExchange --MESSAGE="{\"id\": \"1\"}" --RABBIT_PORT=5672 --ROUTING_KEY=1  --REPEAT_COUNT=2000 --WAIT_FOR_CONFIRMATION_SECONDS=1  --RABBIT_CLIENT_NAME=producer --SLEEP_PERIOD_MS=1000 --PRODUCER_COUNT=5 --RABBIT_URI="amqps://guest:guest@$HOSTNAME:5671/"
+ ```
+
 
 
 ## Topic Exchange
