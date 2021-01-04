@@ -43,26 +43,14 @@ namespace rabbit_api.API
          private Rabbit(Uri uri, Boolean sslEnabled, string clientProvidedName, int networkRecoveryIntervalSecs, ushort qosPreFetchLimit) : 
              this(new ConnectionFactory()
             {
-                HostName = "gregoryg-a01.vmware.com",
+                // HostName = "gregoryg-a01.vmware;s.com",
                 Uri = uri,
                 ClientProvidedName = clientProvidedName,
                 AutomaticRecoveryEnabled = true,
-                Ssl = new SslOption(){Enabled = sslEnabled,
-                ServerName = "gregoryg-a01.vmware.com",
-                // Certs = new X509CertificateCollection( new X509Certificate[] {X509Certificate.CreateFromCertFile("/Users/devtools/integration/messaging/rabbit/rabbit-devOps/tls-gen/basic/result/client_key.pem")}),
-                // Certs = new X509CertificateCollection( new X509Certificate[] {.CreateFromCertFile("/Users/devtools/integration/messaging/rabbit/rabbit-devOps/tls-gen/basic/result/client_key.p12")}),
-                // CertPath = "/Users/devtools/integration/messaging/rabbit/rabbit-devOps/tls-gen/basic/result/client_key.pem",
-                CertPath = "/Users/devtools/integration/messaging/rabbit/rabbit-devOps/tls-gen/basic/result/client_key.p12",
-                // CertPath = "/Users/devtools/integration/messaging/rabbit/rabbit-devOps/tls-gen/basic/client/keycert.p12",
-                Version = SslProtocols.Tls12,
-                // AcceptablePolicyErrors =  SslPolicyErrors.RemoteCertificateNameMismatch,
+                Ssl = new SslOption(){
+                    Enabled = sslEnabled,
                  AcceptablePolicyErrors = SslPolicyErrors.RemoteCertificateNameMismatch |
-                                                SslPolicyErrors.RemoteCertificateChainErrors,
-                // CheckCertificateRevocation = false,
-                // Version = SslProtocols.Tls11,
-                CertPassphrase = "bunnies"
-                // CertPassphrase = "MySecretPassword"
-                } ,
+                                                SslPolicyErrors.RemoteCertificateChainErrors} ,
 
                 NetworkRecoveryInterval = TimeSpan.FromSeconds(networkRecoveryIntervalSecs)
             },
@@ -114,9 +102,6 @@ namespace rabbit_api.API
             if(uriText.Length > 1)
             {
                 bool sslEnabled = uriText.ToLower().Contains("amqps:");
-
-                Console.WriteLine($"sslEnabled :{sslEnabled}");
-
                 return new Rabbit(new Uri(uriText),sslEnabled,clientName,networkRecoveryIntervalSecs,qosPreFetchLimit);
             }
      
