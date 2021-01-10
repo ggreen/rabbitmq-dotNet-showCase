@@ -1,8 +1,7 @@
 # rabbitmq-dotNet-showCase
 
+This is a reference DotNet Core client/wrapper for connecting with [RabbitMQ](https://www.rabbitmq.com/). This demonstrates the best practice development techniques for producers and consumers.
 
-This is reference DotNet Core client/wrapper for connecting with [RabbitMQ](https://www.rabbitmq.com/).
-This demonstrators best practice development techniques for producers and consumers.
 
 
 Projects                                                                                                    | Notes
@@ -17,7 +16,7 @@ Projects                                                                        
 
 
 Thise module uses the [ConfigSettings](https://github.com/imani-solutions/Imani.Solutions.Core.DotNet/blob/master/API/Util/ConfigSettings.cs) object from the open source [Imani Solutions DotNet API](https://github.com/imani-solutions/Imani.Solutions.Core.DotNet).
-This supports getting string, numbers or encrypted passwords from input arguments or environment variables.
+This supports getting string, numbers or encrypted passwords properties from input arguments or environment variables.
 
 
 You can set the properties using an environment variable or input argument (prefixed with --PROPERTY_NAME).
