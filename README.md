@@ -162,8 +162,8 @@ public void HandleUnblocked(object sender, EventArgs args)
 
 
 - rabbitmq unable to connect to "epmd" (port 4369)
-  - Added host name to /etc/hosts
-- TLS Self Signed Certifications add the following
+  - Add host name to Operating System host file (Linux ex: /etc/hosts)
+- Errors with TLS Self Signed Certifications, then add the following
 ```C#
 Ssl = new SslOption(){
                     Enabled = sslEnabled,
