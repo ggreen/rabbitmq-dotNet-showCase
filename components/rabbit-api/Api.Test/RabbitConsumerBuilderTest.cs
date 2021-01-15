@@ -110,6 +110,20 @@ namespace rabbit_api.API
             Assert.AreEqual(expectedQuorumQueueValue, args[expectedQuorumQueueProp]);
         }
 
+
+        [TestMethod]
+        public void SetQuorumQueue_Lazy()
+        {
+            subject.SetLazyQueue();
+
+            subject.AssignQueueTypeArgToQuorum();
+
+            Assert.AreEqual(subject.QueueArguments["x-queue-type"],"quorum");
+            Assert.AreEqual(subject.QueueArguments["x-max-in-memory-length"],"0");
+            Assert.IsFalse(subject.QueueArguments.ContainsKey("x-queue-mode"));
+            
+        }
+
         [TestMethod]
         public void SetSingleActiveConsumer()
         {

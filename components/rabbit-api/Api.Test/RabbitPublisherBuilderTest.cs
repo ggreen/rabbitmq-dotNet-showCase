@@ -5,6 +5,8 @@ using Moq;
 using RabbitMQ.Client;
 
 /// <summary>
+/// 
+/// Test case for RabbitPublisherBuilder
 /// Author: Gregory Green
 /// </summary>
 namespace rabbit_api.API.Test
@@ -26,6 +28,7 @@ namespace rabbit_api.API.Test
         private Mock<IBasicProperties> mockProperties;
         private Tuple<string, string> expectedTuple;
         private readonly ushort expectedPreFetchLimit = 1000;
+        private readonly string expectedContentType = "application/json";
 
         [TestInitialize]
         public void InitializeRabbitConsumerBuilderTest()
@@ -104,6 +107,29 @@ namespace rabbit_api.API.Test
         }
 
         [TestMethod]
+        public void SetQuorumQueue()
+        {
+            subject.AssignQueueTypeArgToQuorum();
+
+            Assert.AreEqual(subject.QueueArguments["x-queue-type"],"quorum");
+            
+        }
+
+
+        [TestMethod]
+        public void SetQuorumQueue_Lazy()
+        {
+            subject.SetLazyQueue();
+
+            subject.AssignQueueTypeArgToQuorum();
+
+            Assert.AreEqual(subject.QueueArguments["x-queue-type"],"quorum");
+            Assert.AreEqual(subject.QueueArguments["x-max-in-memory-length"],"0");
+            Assert.IsFalse(subject.QueueArguments.ContainsKey("x-queue-mode"));
+            
+        }
+
+        [TestMethod]
         public void SetExchangeType()
         {
             RabbitExchangeType expected = RabbitExchangeType.fanout;
@@ -126,6 +152,35 @@ namespace rabbit_api.API.Test
 
         }
 
+           [TestMethod]
+        public void SetLazyQueue()
+        {
+            Assert.IsFalse(subject.IsLazyQueues);
+            // args.put("x-queue-mode", "lazy");
+            RabbitPublisherBuilder actual = subject.SetLazyQueue();
+            Assert.IsTrue(subject.IsLazyQueues);
+
+            Assert.IsNotNull(actual);
+            Assert.AreEqual("lazy",subject.QueueArguments["x-queue-mode"]);
+
+            subject = subject.UseQuorumQueues();
+            Assert.IsTrue(subject.IsLazyQueues);
+            Assert.IsFalse(subject.QueueArguments.Keys.Contains("x-queue-mode"));
+            Assert.AreEqual("0",subject.QueueArguments["x-max-in-memory-length"]);
+
+        }
+
+
+        [TestMethod]
+        public void SetContentType()
+        {
+            string expected = "application/json";
+            RabbitPublisherBuilder actual = subject.SetContentType(expected);
+
+            Assert.IsNotNull(actual);
+
+            Assert.AreEqual(expected, actual.ContentType);
+        }
        
 
         [TestMethod]

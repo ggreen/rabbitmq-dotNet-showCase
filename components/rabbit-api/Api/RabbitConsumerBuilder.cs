@@ -11,8 +11,7 @@ namespace rabbit_api.API
     public class RabbitConsumerBuilder : RabbitBuilder
     {
         private readonly string SINGLE_ACTIVE_CONSUMER_PROP = "x-single-active-consumer";
-        private readonly string QUEUE_TYPE_PROP = "x-queue-type";
-        private readonly object QUORUM_QUEUE_TYPE = "quorum";
+
 
         public bool AutoAck { get; set; }
         
@@ -66,14 +65,20 @@ namespace rabbit_api.API
 
         public RabbitConsumerBuilder UseQuorumQueues()
         {
-            this.QueueArguments[QUEUE_TYPE_PROP]= QUORUM_QUEUE_TYPE;
+            AssignQueueTypeArgToQuorum();
             return this;
         }
+
 
         public RabbitConsumerBuilder SetQosPreFetchLimit(ushort qos)
         {
             this.QosPreFetchLimit = qos;
 
+            return this;
+        }
+
+        public RabbitConsumerBuilder SetLazyQueue()
+        {
             return this;
         }
     }

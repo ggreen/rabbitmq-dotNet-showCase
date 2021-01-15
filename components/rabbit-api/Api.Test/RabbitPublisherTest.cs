@@ -19,6 +19,7 @@ namespace rabbit_api.Api.Test
         private RabbitPublisher subject;
         private Mock<IBasicProperties> basicProperties = new Mock<IBasicProperties>();
         private readonly bool confirmPublish = true;
+        private readonly string contentType = "application/json";
 
         [TestInitialize]
         public void InitializeRabbitPublisherTest()

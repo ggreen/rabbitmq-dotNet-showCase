@@ -13,6 +13,8 @@ namespace rabbit_api.API
     {
         public bool Persistent { get; private set; }
         public bool IsConfirmPublish { get; private set; }
+        public string ContentType { get; private set; }
+
 
         public RabbitPublisherBuilder(IModel channel, ushort qosPreFetchLimit) : base(channel, qosPreFetchLimit)
         {
@@ -54,6 +56,7 @@ namespace rabbit_api.API
 
             IBasicProperties basicProperties = channel.CreateBasicProperties();
             basicProperties.Persistent = Persistent;
+            basicProperties.ContentType = ContentType;
 
             basicProperties.DeliveryMode = 2; // persistent
 
@@ -76,6 +79,25 @@ namespace rabbit_api.API
         {
             this.QosPreFetchLimit = qos;
             return this;
+        }
+
+        public RabbitPublisherBuilder SetContentType(string contentType)
+        {
+            this.ContentType = contentType;
+            return this;
+        }
+
+        public RabbitPublisherBuilder SetLazyQueue()
+        {
+            AssignQueueModeArgToLazy();
+            return this;
+        }
+
+        public RabbitPublisherBuilder UseQuorumQueues()
+        {
+           AssignQueueTypeArgToQuorum();
+
+           return this;
         }
     }
 }

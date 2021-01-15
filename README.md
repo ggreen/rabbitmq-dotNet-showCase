@@ -1,6 +1,8 @@
 # rabbitmq-dotNet-showCase
 
-This is a reference DotNet Core client/wrapper for connecting with [RabbitMQ](https://www.rabbitmq.com/). This demonstrates the best practice development techniques for producers and consumers.
+This is a reference DotNet Core client/wrapper for connecting with [RabbitMQ](https://www.rabbitmq.com/). It demonstrates the best practice development techniques.
+
+This project implements the [builder design pattern](https://en.wikipedia.org/wiki/Builder_pattern) for producers and consumers.
 
 
 
@@ -15,8 +17,8 @@ Projects                                                                        
 ## Environments or Input Properties
 
 
-Thise module uses the [ConfigSettings](https://github.com/imani-solutions/Imani.Solutions.Core.DotNet/blob/master/API/Util/ConfigSettings.cs) object from the open source [Imani Solutions DotNet API](https://github.com/imani-solutions/Imani.Solutions.Core.DotNet).
-This supports getting string, numbers or encrypted passwords properties from input arguments or environment variables.
+This module uses the [ConfigSettings](https://github.com/imani-solutions/Imani.Solutions.Core.DotNet/blob/master/API/Util/ConfigSettings.cs) object from the open source [Imani Solutions DotNet API](https://github.com/imani-solutions/Imani.Solutions.Core.DotNet).
+This supports getting string, numbers, secrets or encrypted passwords properties from input arguments or environment variables.
 
 
 You can set the properties using an environment variable or input argument (prefixed with --PROPERTY_NAME).
@@ -39,7 +41,7 @@ RABBIT_PREFETCH_LIMIT | Prefetch limit (mainly for consumers) | 1000
 
 ## Sample Code
 
-## Consumer
+### Consumer Code
 
 ```c#
 
@@ -59,7 +61,7 @@ private void receiver(IModel channel, object sender, BasicDeliverEventArgs event
 }
 ```
 
-Publisher Code
+### Publisher Code
 
 ```C#
 
@@ -79,6 +81,7 @@ publisher.Publish(msg, routingKey);
 # Best Practices
 
 ## Client Side
+
 - Use Quorum queues for consistency
 - Enable auto reconnect for connections
 - Use one connection per process
@@ -113,7 +116,7 @@ Many of these tips are based on an [ERLang Solutions best practices video](https
 
 - Use 3 Node Rabbit MQ cluster 
 - Use lazy queues for larger queues where messages live longer on server (example: batch processing)
-- Limit number of queues (less than 10 queues)
+- Limit number of queues (less than 10K queues)
 - Queues are single threaded (est: 50K/s); For greater throughput you can use Consistent Hash or sharing plugins
 - Reduce HA batch-sync-size to prevent introducing network partition dues to server pauses related to synchronize large batch sizes
 - Prefer TCP keep alives over heart beats

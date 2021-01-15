@@ -16,7 +16,12 @@ namespace nserviceBusProducer
             endpointConfiguration.UsePersistence<InMemoryPersistence>();
             endpointConfiguration.SendFailedMessagesTo("error");
             endpointConfiguration.AuditProcessedMessagesTo("audit");
-            endpointConfiguration.EnableInstallers();
+            endpointConfiguration.EnableInstallers();]
+            transport.UseCustomRoutingTopology(
+            topologyFactory: createDurableExchangesAndQueues =>
+            {
+                return new MyRoutingTopology(createDurableExchangesAndQueues);
+            });
 
             var endpointInstance = await Endpoint.Start(endpointConfiguration)
                 .ConfigureAwait(false);

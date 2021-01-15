@@ -43,7 +43,6 @@ namespace rabbit_api.Api.Test
 
         private void receiver(IModel channel, object message, BasicDeliverEventArgs eventArg)
         {
-            throw new NotImplementedException();
         }
     }
 }

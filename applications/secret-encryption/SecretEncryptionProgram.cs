@@ -6,9 +6,9 @@ using rabbit_api.API;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
-namespace rabbit_demo_consumer
+namespace SecretEncryption
 {
-    class PasswordEncryptionProgram
+    class SecretEncryptionProgram
     {
         static void Main(string[] args)
         {
@@ -18,7 +18,7 @@ namespace rabbit_demo_consumer
                 return;
             }
             ConfigSettings config = new ConfigSettings();
-            Console.WriteLine(config.EncryptPassword(args[0].ToCharArray()));
+            Console.WriteLine(config.EncryptSecret(args[0]));
 
         }
     }

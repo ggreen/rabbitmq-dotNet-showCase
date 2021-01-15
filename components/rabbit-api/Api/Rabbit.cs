@@ -9,6 +9,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Net.Security;
 
 /// <summary>
+/// RabbitMQ facade interface wrapper
 /// Author: Gregory Green
 /// </summary>
 namespace rabbit_api.API
@@ -43,7 +44,6 @@ namespace rabbit_api.API
          private Rabbit(Uri uri, Boolean sslEnabled, string clientProvidedName, int networkRecoveryIntervalSecs, ushort qosPreFetchLimit) : 
              this(new ConnectionFactory()
             {
-                // HostName = "gregoryg-a01.vmware;s.com",
                 Uri = uri,
                 ClientProvidedName = clientProvidedName,
                 AutomaticRecoveryEnabled = true,
@@ -98,7 +98,7 @@ namespace rabbit_api.API
             string clientName = config.GetProperty("RABBIT_CLIENT_NAME");
             ushort qosPreFetchLimit = ushort.Parse(config.GetProperty("RABBIT_PREFETCH_LIMIT","1000"));
 
-            string uriText = config.GetProperty("RABBIT_URI", "");
+            string uriText = config.GetPropertySecret("RABBIT_URI", "");
             if(uriText.Length > 1)
             {
                 bool sslEnabled = uriText.ToLower().Contains("amqps:");
