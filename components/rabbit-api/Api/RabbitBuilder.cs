@@ -9,10 +9,12 @@ namespace rabbit_api.API
 {
     public abstract class RabbitBuilder
     {
+        public const string QUORUM_QUEUE_TYPE = "quorum";
+        public const string CLASSIC_QUEUE_TYPE = "classic";
         private const string QUEUE_MODE_PROP = "x-queue-mode";
         private const string QUORUM_QUEUE_MAX_IN_MEMORY_LEN_PROP = "x-max-in-memory-length";
-        private const  string QUEUE_TYPE_PROP = "x-queue-type";
-        private const string QUORUM_QUEUE_TYPE = "quorum";
+        private const string QUEUE_TYPE_PROP = "x-queue-type";
+
 
         internal readonly IModel channel;
         /// <summary>
@@ -47,8 +49,8 @@ namespace rabbit_api.API
         {
             get
             {
-                return this.QueueArguments.ContainsKey(QUEUE_TYPE_PROP) && 
-                        this.QueueArguments[QUEUE_TYPE_PROP]== QUORUM_QUEUE_TYPE;
+                return this.QueueArguments.ContainsKey(QUEUE_TYPE_PROP) &&
+                        this.QueueArguments[QUEUE_TYPE_PROP].Equals(QUORUM_QUEUE_TYPE);
             }
         }
 
@@ -117,6 +119,23 @@ namespace rabbit_api.API
                 AssignQuorumQueueMaxInMemoryZero();
 
             }
+        }
+
+        internal void AssignQueueType(RabbitQueueType queueType)
+        {
+            switch(queueType)
+           {
+               case RabbitQueueType.quorum:    this.AssignQueueTypeArgToQuorum();
+               break;
+               case RabbitQueueType.classic: this.AssignQueueTypeArgClassic();
+               break;
+           }
+        }
+
+
+        internal void AssignQueueTypeArgClassic()
+        {
+            this.QueueArguments[QUEUE_TYPE_PROP] = CLASSIC_QUEUE_TYPE;
 
         }
 
@@ -138,5 +157,7 @@ namespace rabbit_api.API
                 this.QueueArguments[QUEUE_MODE_PROP] = "lazy";
             }
         }
+
+
     }
 }

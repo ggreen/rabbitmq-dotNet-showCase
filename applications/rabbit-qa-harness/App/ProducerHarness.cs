@@ -12,6 +12,20 @@ namespace rabbit_qa_harness.App
     {
         private const int JSON_MIN_SIZE = 10;
         private readonly ConfigSettings config = new ConfigSettings();
+        private readonly string exchange;
+        private readonly string message;
+        private readonly string routingKey;
+        private readonly int sleepPeriodMs;
+        private readonly RabbitExchangeType type;
+        private readonly int repeatCount;
+        private string contentType;
+
+        private readonly byte[] msg;
+        private readonly int producerCount;
+
+        private readonly string DEFAULT_CONTENT_TYPE = "text/plain";
+        private static readonly object JSON_CONTENT_TYPE = "application/json";
+        private readonly int errorSleepPeriodMs = 30000;
 
         internal static string GetMessage(ISettings config, string contentType)
         {
@@ -53,20 +67,6 @@ namespace rabbit_qa_harness.App
             return message;
         }
 
-        private readonly string exchange;
-        private readonly string message;
-        private readonly string routingKey;
-        private readonly int sleepPeriodMs;
-        private readonly RabbitExchangeType type;
-        private readonly int repeatCount;
-        private string contentType;
-
-        private readonly byte[] msg;
-        private readonly int producerCount;
-
-        private readonly string DEFAULT_CONTENT_TYPE = "text/plain";
-        private static readonly object JSON_CONTENT_TYPE = "application/json";
-        private readonly int errorSleepPeriodMs = 30000;
 
         public ProducerHarness()
         {
@@ -89,12 +89,20 @@ namespace rabbit_qa_harness.App
         {
             using (Rabbit rabbit = Rabbit.Connect())
             {
+
                 var builder = rabbit.PublishBuilder().
                                 SetExchange(exchange)
                                 .SetConfirmPublish()
                                 .SetExchangeType(type)
                                 .SetContentType(contentType);
 
+                var queue = config.GetProperty("QUEUE","");
+                if(queue.Length > 0)
+                {
+                    builder.UseQueueType(Enum.Parse<RabbitQueueType>(config.GetProperty("QUEUE_TYPE")));
+                    builder.AddQueue(queue,config.GetProperty("ROUTING_KEY",""));
+                }
+                
                 List<Thread> list = new List<Thread>(this.producerCount);
 
                 long sentCount = 0;

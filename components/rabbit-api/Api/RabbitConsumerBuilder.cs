@@ -14,9 +14,9 @@ namespace rabbit_api.API
 
 
         public bool AutoAck { get; set; }
-        
 
-        public RabbitConsumerBuilder(IModel channel,ushort qosPreFetchLimit) : base(channel,qosPreFetchLimit)
+
+        public RabbitConsumerBuilder(IModel channel, ushort qosPreFetchLimit) : base(channel, qosPreFetchLimit)
         {
         }
 
@@ -29,18 +29,18 @@ namespace rabbit_api.API
 
         public RabbitConsumerBuilder AddQueue(string queue, string routingKey)
         {
-       
-            base.AddQueueRoutingKey(queue,routingKey);
+
+            base.AddQueueRoutingKey(queue, routingKey);
             return this;
         }
         public RabbitConsumerBuilder SetExchangeType(RabbitExchangeType type)
         {
             ExchangeType = type;
-           return this;
+            return this;
         }
         public RabbitConsumer Build()
         {
-            
+
             if (queues.Count < 1)
                 throw new ArgumentException("If more than one queue, call Build(queueName)");
 
@@ -49,6 +49,8 @@ namespace rabbit_api.API
 
             return Build(i.Current.Item1);
         }
+
+
         public RabbitConsumer Build(string consumerQueue)
         {
             ConstructExchange();
@@ -59,13 +61,13 @@ namespace rabbit_api.API
 
         public RabbitConsumerBuilder SetSingleActiveConsumer()
         {
-            this.QueueArguments[SINGLE_ACTIVE_CONSUMER_PROP]=true;
+            this.QueueArguments[SINGLE_ACTIVE_CONSUMER_PROP] = true;
             return this;
         }
 
-        public RabbitConsumerBuilder UseQuorumQueues()
+        public RabbitConsumerBuilder UseQueueType(RabbitQueueType queueType)
         {
-            AssignQueueTypeArgToQuorum();
+            AssignQueueType(queueType);
             return this;
         }
 
@@ -79,6 +81,8 @@ namespace rabbit_api.API
 
         public RabbitConsumerBuilder SetLazyQueue()
         {
+            this.AssignQueueModeArgToLazy();
+            
             return this;
         }
     }

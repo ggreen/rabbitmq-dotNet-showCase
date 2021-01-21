@@ -93,11 +93,10 @@ namespace rabbit_api.API
             return this;
         }
 
-        public RabbitPublisherBuilder UseQuorumQueues()
+        public RabbitPublisherBuilder UseQueueType(RabbitQueueType queueType)
         {
-           AssignQueueTypeArgToQuorum();
-
-           return this;
+            this.AssignQueueType(queueType);
+            return this;
         }
     }
 }

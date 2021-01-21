@@ -16,7 +16,7 @@ namespace nserviceBusProducer
             endpointConfiguration.UsePersistence<InMemoryPersistence>();
             endpointConfiguration.SendFailedMessagesTo("error");
             endpointConfiguration.AuditProcessedMessagesTo("audit");
-            endpointConfiguration.EnableInstallers();]
+            endpointConfiguration.EnableInstallers();
             transport.UseCustomRoutingTopology(
             topologyFactory: createDurableExchangesAndQueues =>
             {

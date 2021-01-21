@@ -115,6 +115,17 @@ namespace rabbit_api.API.Test
             
         }
 
+         [TestMethod]
+        public void UseClassicQueue()
+        {
+            RabbitPublisherBuilder actual   = subject.UseQueueType(RabbitQueueType.classic);
+            Assert.AreEqual(subject,actual);
+
+            Assert.AreEqual(subject.QueueArguments["x-queue-type"],"classic");
+
+            
+        }
+
 
         [TestMethod]
         public void SetQuorumQueue_Lazy()
@@ -163,7 +174,7 @@ namespace rabbit_api.API.Test
             Assert.IsNotNull(actual);
             Assert.AreEqual("lazy",subject.QueueArguments["x-queue-mode"]);
 
-            subject = subject.UseQuorumQueues();
+            subject = subject.UseQueueType(RabbitQueueType.quorum);
             Assert.IsTrue(subject.IsLazyQueues);
             Assert.IsFalse(subject.QueueArguments.Keys.Contains("x-queue-mode"));
             Assert.AreEqual("0",subject.QueueArguments["x-max-in-memory-length"]);

@@ -35,11 +35,10 @@ namespace rabbit_qa_harness.App
                             .SetExchange(exchange)
                             .SetExchangeType(type)
                             .AddQueue(queue, routingKey);
-                
-                if(config.GetPropertyBoolean("QUORUM_QUEUES", true))
-                {
-                    builder.UseQuorumQueues();
-                }
+
+                var queueType = Enum.Parse<RabbitQueueType>(config.GetProperty("QUEUE_TYPE"));
+
+               builder.UseQueueType(queueType);
 
                 if(config.GetPropertyBoolean("LAZY_QUEUE", true))
                 {

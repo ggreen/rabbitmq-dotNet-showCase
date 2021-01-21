@@ -20,7 +20,7 @@ namespace rabbit_api.API
         private RabbitExchangeType expectedType = RabbitExchangeType.fanout;
         private bool expectedDurable = true;
         private bool expectedAutoDelete = true;
-        private IDictionary<string, object> expectedQueueArguments = new Dictionary<string,object>();
+        private IDictionary<string, object> expectedQueueArguments = new Dictionary<string, object>();
         private bool expectedExclusive = true;
         private string expectedRoutingKey = "myKey";
         private Tuple<string, string> expectedTuple;
@@ -34,7 +34,7 @@ namespace rabbit_api.API
         public void InitializeRabbitConsumerBuilderTest()
         {
             mockChannel = new Mock<IModel>();
-            subject = new RabbitConsumerBuilder(mockChannel.Object,expectedPreFetchLimit);
+            subject = new RabbitConsumerBuilder(mockChannel.Object, expectedPreFetchLimit);
             expectedTuple = new Tuple<string, string>(expectedQueue, expectedRoutingKey);
         }
 
@@ -99,11 +99,11 @@ namespace rabbit_api.API
         [TestMethod]
         public void UseQuorumQueues()
         {
-              RabbitConsumerBuilder actual = subject.UseQuorumQueues();
+            RabbitConsumerBuilder actual = subject.UseQueueType(RabbitQueueType.quorum);
 
             Assert.IsNotNull(actual);
 
-            IDictionary<string,object> args = subject.QueueArguments;
+            IDictionary<string, object> args = subject.QueueArguments;
 
             Assert.IsNotNull(args);
 
@@ -116,12 +116,12 @@ namespace rabbit_api.API
         {
             subject.SetLazyQueue();
 
-            subject.AssignQueueTypeArgToQuorum();
+            subject.UseQueueType(RabbitQueueType.quorum);
 
-            Assert.AreEqual(subject.QueueArguments["x-queue-type"],"quorum");
-            Assert.AreEqual(subject.QueueArguments["x-max-in-memory-length"],"0");
+            Assert.AreEqual(subject.QueueArguments["x-queue-type"], "quorum");
+            Assert.AreEqual(subject.QueueArguments["x-max-in-memory-length"], "0");
             Assert.IsFalse(subject.QueueArguments.ContainsKey("x-queue-mode"));
-            
+
         }
 
         [TestMethod]
@@ -131,7 +131,7 @@ namespace rabbit_api.API
 
             Assert.IsNotNull(actual);
 
-            IDictionary<string,object> args = subject.QueueArguments;
+            IDictionary<string, object> args = subject.QueueArguments;
 
             Assert.IsNotNull(args);
 
@@ -162,11 +162,11 @@ namespace rabbit_api.API
             VerifyBuild();
         }
 
-         [TestMethod]
+        [TestMethod]
         public void Build_WithSingleActiveConsumer()
         {
             subject.SetSingleActiveConsumer();
-            expectedQueueArguments = new Dictionary<string,object>();
+            expectedQueueArguments = new Dictionary<string, object>();
             expectedQueueArguments[expectedSingleActiveConsumerProp] = true;
 
 
@@ -174,11 +174,11 @@ namespace rabbit_api.API
         }
 
 
-         [TestMethod]
+        [TestMethod]
         public void Build_WithQuorumQueues()
         {
-            subject.UseQuorumQueues();
-            expectedQueueArguments = new Dictionary<string,object>();
+            subject.UseQueueType(RabbitQueueType.quorum);
+            expectedQueueArguments = new Dictionary<string, object>();
             expectedQueueArguments["x-queue-type"] = "quorum";
 
             VerifyBuild();
@@ -191,7 +191,18 @@ namespace rabbit_api.API
             RabbitConsumerBuilder outSubject = subject.SetQosPreFetchLimit(expected);
 
             Assert.IsNotNull(outSubject);
-            Assert.AreEqual(expected,outSubject.QosPreFetchLimit);
+            Assert.AreEqual(expected, outSubject.QosPreFetchLimit);
+        }
+
+        [TestMethod]
+        public void UseClassicQueue()
+        {
+            RabbitConsumerBuilder actual = subject.UseQueueType(RabbitQueueType.classic);
+            Assert.AreEqual(subject, actual);
+
+            Assert.AreEqual(subject.QueueArguments["x-queue-type"], "classic");
+
+
         }
 
         private void VerifyBuild()
@@ -214,7 +225,7 @@ namespace rabbit_api.API
             expectedAutoDelete,
             expectedExchangeArguments));
 
-            mockChannel.Verify( c => c.BasicQos(0,expectedPreFetchLimit,false));
+            mockChannel.Verify(c => c.BasicQos(0, expectedPreFetchLimit, false));
 
             mockChannel.Verify(c => c.QueueDeclare(expectedQueue, expectedDurable,
            expectedExclusive, expectedAutoDelete, expectedQueueArguments));

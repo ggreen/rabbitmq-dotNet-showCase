@@ -3,13 +3,19 @@
 
 The following is an example to start the publisher.
 
-
+```shell script
 export CRYPTION_KEY=DFDJFDFDxdfd2323
 export RABBIT_USERNAME=guest
 export RABBIT_PASSWORD=guest
+```
 
 
-## RABBIT_URI
+### producer and consumer
+
+```shell script
+dotnet run  --EXCHANGE_TYPE=direct  --EXCHANGE=exchange_imani  --QUEUE=queue_imani  --RABBIT_PORT=5672 --ROUTING_KEY=1 --MESSAGE_SIZE=300  --REPEAT_COUNT=200000 --WAIT_FOR_CONFIRMATION_SECONDS=1  --RABBIT_CLIENT_NAME=rabbitMqQAHarness --SLEEP_PERIOD_MS=1000 --PRODUCERS=1 --CONSUMERS=1 --QUEUE_TYPE=classic --RABBIT_URI="amqp://guest:guest@$HOSTNAME:5672/"
+```
+
 
 
 ### PRODUCER
