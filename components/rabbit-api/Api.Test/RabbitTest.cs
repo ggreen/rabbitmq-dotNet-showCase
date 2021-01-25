@@ -49,6 +49,7 @@ namespace rabbit_api.API.Test
                Assert.AreEqual(expectedPrefetch,subject.QosPreFetchLimit);
         }
 
+      
         [TestMethod]
         public void Publish()
         {
@@ -81,7 +82,47 @@ namespace rabbit_api.API.Test
             mockConnection.Verify( c => c.Close());
         }
 
-     
+        [TestMethod]
+        public void ParseUrisToEndPoints_IsNull_ThrowsArgumentExcpetion()
+        {
+            Assert.ThrowsException<ArgumentException>(() => Rabbit.ParseUrisToEndPoints(null));
+        }
+
+        [TestMethod]
+        public void ParseUrisToEndPoints_EmptyString_ThrowsArgumentExcpetion()
+        {
+            Assert.ThrowsException<ArgumentException>(() => Rabbit.ParseUrisToEndPoints(""));
+        }
+
+        [TestMethod]
+        public void ParseUrisToEndPoints_OneUri_Equals()
+        {
+            string uris = "amqp://guest:guest@localhost/";
+            AmqpTcpEndpoint expected = new AmqpTcpEndpoint(uris);
+
+            IList<AmqpTcpEndpoint> actual = Rabbit.ParseUrisToEndPoints(uris);
+            Assert.AreEqual(expected,actual[0]);
+        }
+
+           [TestMethod]
+        public void ParseUrisToEndPoints_MultipleUris()
+        {
+            string uris1 = "amqp://guest:guest@host1/";
+            string uris2 = "amqp://guest:guest@host2/";
+            string uris = uris1+","+uris2;
+            AmqpTcpEndpoint expected1 = new AmqpTcpEndpoint(uris1);
+            AmqpTcpEndpoint expected2 = new AmqpTcpEndpoint(uris2);
+
+            IList<AmqpTcpEndpoint> actual = Rabbit.ParseUrisToEndPoints(uris);
+            Assert.AreEqual(expected1,actual[0]);
+            Assert.AreEqual(expected2,actual[1]);
+        }
+
+        [TestMethod]
+        public void ParseUrisToEndPoints()
+        {
+            Assert.IsNull(Rabbit.ParseUrisToEndPoints(null));
+        }
     }
 
 

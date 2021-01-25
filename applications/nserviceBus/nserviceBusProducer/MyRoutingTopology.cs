@@ -12,7 +12,7 @@ namespace nserviceBusProducer
         private string exchangeType = "topic";
         private bool durable = true;
         private bool autoDelete = false;
-        private IDictionary<string, object> arguments;
+        private IDictionary<string, object> arguments = new Dictionary<string,object>();
         private bool exclusive = false;
         private string exchange;
         private string routingKey;
@@ -27,6 +27,8 @@ namespace nserviceBusProducer
         {
             this.exchange = deliveryExchange;
             this.routingKey = routingKey;
+
+            arguments["x-queue-type"] = "quorum";
 
             channel.ExchangeDeclare(deliveryExchange,exchangeType,durable,autoDelete,arguments);
             channel.QueueDeclare(address,durable,exclusive,autoDelete,arguments);            
