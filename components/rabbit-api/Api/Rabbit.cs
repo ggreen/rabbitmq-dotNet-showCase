@@ -18,7 +18,7 @@ namespace rabbit_api.API
     {
         private readonly IConnectionFactory factory;
 
-        private readonly IList<AmqpTcpEndpoint> endpoints = null;
+        private readonly IList<Uri> endpoints = null;
         
         private static readonly int DEFAULT_CONNECTION_RETRY_SECS = 15;
         private IConnection connection;
@@ -43,10 +43,10 @@ namespace rabbit_api.API
             )
         {
         }
-         private Rabbit(IList<AmqpTcpEndpoint> endpoints, Boolean sslEnabled, string clientProvidedName, int networkRecoveryIntervalSecs, ushort qosPreFetchLimit) : 
+         private Rabbit(IList<Uri> endpoints, Boolean sslEnabled, string clientProvidedName, int networkRecoveryIntervalSecs, ushort qosPreFetchLimit) : 
              this(new ConnectionFactory()
             {
-                // Uri = uri,
+                Uri = endpoints[0],
                 ClientProvidedName = clientProvidedName,
                 AutomaticRecoveryEnabled = true,
                 Ssl = new SslOption(){
@@ -59,6 +59,7 @@ namespace rabbit_api.API
             qosPreFetchLimit
             )
         {
+            this.endpoints = endpoints;
         }
 
         internal Rabbit(IConnectionFactory factory,ushort  qosPreFetchLimit)
@@ -67,9 +68,15 @@ namespace rabbit_api.API
 
             this.QosPreFetchLimit = qosPreFetchLimit;
 
-            if(this.endpoints != null)
+            if(this.endpoints != null && this.endpoints.Count > 0)
             {
-                connection = factory.CreateConnection(this.endpoints);
+                IList<AmqpTcpEndpoint> amqpEndpoints = new List<AmqpTcpEndpoint>(this.endpoints.Count);
+                foreach( Uri uri in this.endpoints)
+                {
+                    amqpEndpoints.Add(new AmqpTcpEndpoint(uri.Host,uri.Port));
+                }
+
+                connection = factory.CreateConnection(amqpEndpoints);
             }
             else
             {
@@ -123,7 +130,7 @@ namespace rabbit_api.API
             return new Rabbit(host, port,virtualHost, clientName,networkRecoveryIntervalSecs,qosPreFetchLimit,userName,password);
         }
 
-        internal static IList<AmqpTcpEndpoint> ParseUrisToEndPoints(string urisText)
+        internal static IList<Uri> ParseUrisToEndPoints(string urisText)
         {
             if(String.IsNullOrWhiteSpace(urisText))
             {
@@ -131,10 +138,10 @@ namespace rabbit_api.API
             }
 
             string[] urisArray = urisText.Split(",");
-            IList<AmqpTcpEndpoint> list = new List<AmqpTcpEndpoint>();
+            IList<Uri> list = new List<Uri>();
             foreach(string uri in urisArray)
             {
-                list.Add(new AmqpTcpEndpoint(uri));
+                list.Add(new Uri(uri));
             }
 
             return list;

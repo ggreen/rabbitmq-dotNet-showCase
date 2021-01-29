@@ -98,9 +98,9 @@ namespace rabbit_api.API.Test
         public void ParseUrisToEndPoints_OneUri_Equals()
         {
             string uris = "amqp://guest:guest@localhost/";
-            AmqpTcpEndpoint expected = new AmqpTcpEndpoint(uris);
+            Uri expected = new Uri(uris);
 
-            IList<AmqpTcpEndpoint> actual = Rabbit.ParseUrisToEndPoints(uris);
+            IList<Uri> actual = Rabbit.ParseUrisToEndPoints(uris);
             Assert.AreEqual(expected,actual[0]);
         }
 
@@ -110,18 +110,19 @@ namespace rabbit_api.API.Test
             string uris1 = "amqp://guest:guest@host1/";
             string uris2 = "amqp://guest:guest@host2/";
             string uris = uris1+","+uris2;
-            AmqpTcpEndpoint expected1 = new AmqpTcpEndpoint(uris1);
-            AmqpTcpEndpoint expected2 = new AmqpTcpEndpoint(uris2);
+            Uri expected1 = new Uri(uris1);
+            Uri expected2 = new Uri(uris2);
 
-            IList<AmqpTcpEndpoint> actual = Rabbit.ParseUrisToEndPoints(uris);
-            Assert.AreEqual(expected1,actual[0]);
-            Assert.AreEqual(expected2,actual[1]);
+            IList<Uri> actual = Rabbit.ParseUrisToEndPoints(uris);
+            Assert.AreEqual("host1",actual[0].Host);
+            Assert.AreEqual("host2",actual[1].Host);
+            
         }
 
         [TestMethod]
         public void ParseUrisToEndPoints()
         {
-            Assert.IsNull(Rabbit.ParseUrisToEndPoints(null));
+            Assert.ThrowsException<ArgumentException>(() =>Rabbit.ParseUrisToEndPoints(null));
         }
     }
 
