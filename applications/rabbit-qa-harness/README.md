@@ -112,6 +112,17 @@ dotnet run  --EXCHANGE_TYPE=direct  --EXCHANGE=exchange_app  --QUEUE=queue_app  
 
 ## SSL
 
+```
 dotnet run  --EXCHANGE_TYPE=direct  --EXCHANGE=exchange_imani  --MESSAGE="{\"id\": \"1\"}" --ROUTING_KEY=1  --REPEAT_COUNT=1 --WAIT_FOR_CONFIRMATION_SECONDS=1  --RABBIT_CLIENT_NAME=rabbitMqQAHarness --SLEEP_PERIOD_MS=1000 --PRODUCERS=1 --CONSUMERS=0 --RABBIT_URIS="amqps://guest:guest@$HOSTNAME:5671/"
 
  ```
+
+
+
+# Resilency Testing
+
+export CRYPTION_KEY=DFDJFDFDxdfd2323
+
+
+dotnet run  --EXCHANGE_TYPE=direct  --EXCHANGE=exchange_imani --QUEUE=queue_imani --QUEUE_TYPE=quorum  --MESSAGE_SIZE=100 --ROUTING_KEY=1  --REPEAT_COUNT=1000000000 --WAIT_FOR_CONFIRMATION_SECONDS=1  --RABBIT_CLIENT_NAME=rabbitMqQAHarness --SLEEP_PERIOD_MS=1000 --PRODUCERS=1 --CONSUMERS=1 --RABBIT_URIS="amqp://guest:guest@$HOSTNAME:5672/"
+

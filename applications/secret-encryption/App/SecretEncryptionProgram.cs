@@ -8,7 +8,11 @@ using RabbitMQ.Client.Events;
 
 namespace SecretEncryption
 {
-    class SecretEncryptionProgram
+    /// <summary>
+    /// SecretEncryptionProgram using the Imani encryption to generated an encrypted secret.
+    /// author: Gregory Green
+    /// </summary>
+    public class SecretEncryptionProgram
     {
         static void Main(string[] args)
         {
@@ -17,9 +21,13 @@ namespace SecretEncryption
                 Console.WriteLine("password arg required");
                 return;
             }
-            ConfigSettings config = new ConfigSettings();
-            Console.WriteLine(config.EncryptSecret(args[0]));
+           
+            Console.WriteLine(EncryptSecret(args[0]));
+        }
 
+        internal static string EncryptSecret(string secret)
+        {
+            return new ConfigSettings().EncryptSecret(secret);
         }
     }
 }

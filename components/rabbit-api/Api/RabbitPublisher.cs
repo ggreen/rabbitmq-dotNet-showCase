@@ -53,9 +53,9 @@ namespace rabbit_api.API
 
             if (this.requireReliableDelivery)
             {
-                channel.WaitForConfirms(waitFromConfirmationTimeSpan);
-
+                channel.WaitForConfirmsOrDie(waitFromConfirmationTimeSpan);
             }
+            
         }
     }
 }

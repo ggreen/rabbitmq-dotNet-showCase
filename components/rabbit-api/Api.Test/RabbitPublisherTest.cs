@@ -81,7 +81,7 @@ namespace rabbit_api.Api.Test
 
             subject.Publish(body, routingKey);
 
-            mockedChannel.Verify(c => c.WaitForConfirms(It.IsAny<TimeSpan>()));
+            mockedChannel.Verify(c => c.WaitForConfirmsOrDie(It.IsAny<TimeSpan>()));
         }
     }
 }

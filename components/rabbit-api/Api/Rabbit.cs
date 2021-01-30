@@ -108,9 +108,13 @@ namespace rabbit_api.API
 
             connection.ConnectionBlocked += HandleBlocked;
             connection.ConnectionUnblocked += HandleUnblocked;
+            connection.ConnectionShutdown += HandleShutdown;
         }
 
-        
+        private void HandleShutdown(object sender, ShutdownEventArgs e)
+        {
+            Console.WriteLine($"FATAL: ======== ERROR Connection SHUTDOWN event {e} sender {sender} ========");
+        }
 
         private void HandleBlocked(object sender, ConnectionBlockedEventArgs args)
         {

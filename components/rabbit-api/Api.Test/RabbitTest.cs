@@ -16,7 +16,7 @@ namespace rabbit_api.API.Test
     [TestClass]
     public class RabbitTest
     {
-        Rabbit subject;        
+        private Rabbit subject;        
         private string topic = "t";
         private string queue = "q";
         private String expected = "{}";
@@ -29,6 +29,11 @@ namespace rabbit_api.API.Test
         private Mock<IModel> mockChannel = new Mock<IModel>();
         private Mock<IBasicProperties> mockProperties = new Mock<IBasicProperties>();
         private ushort expectedPrefetch = 22;
+
+        private void HandleShutdown(object sender, ShutdownEventArgs e)
+        {
+            Console.WriteLine("FATAL: error Connection Shutdown");
+        }
 
         [TestMethod]
         public void ToAmqpTcpEndpoints()

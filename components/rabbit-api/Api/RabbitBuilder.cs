@@ -15,8 +15,7 @@ namespace rabbit_api.API
         private const string QUORUM_QUEUE_MAX_IN_MEMORY_LEN_PROP = "x-max-in-memory-length";
         private const string QUEUE_TYPE_PROP = "x-queue-type";
 
-
-        internal readonly IModel channel;
+        protected IModel channel;
         /// <summary>
         /// The client can request that messages be sent in advance so that when the client 
         /// finishes processing a message, the following message is already held locally, 
@@ -31,7 +30,7 @@ namespace rabbit_api.API
         /// </summary>
         private readonly uint qosPrefetchSize = 0;
         private readonly bool qosGlobal = false;
-        internal HashSet<Tuple<string, string>> queues = new HashSet<Tuple<string, string>>();
+        protected HashSet<Tuple<string, string>> queues = new HashSet<Tuple<string, string>>();
 
         public bool IsLazyQueues { get; internal set; }
 
@@ -55,6 +54,11 @@ namespace rabbit_api.API
         }
 
         internal RabbitBuilder(IModel channel, ushort qosPreFetchLimit)
+        {
+            Init(channel,qosPreFetchLimit);
+
+        }
+        internal void Init(IModel channel, ushort qosPreFetchLimit)
         {
             this.channel = channel;
             Durable = true;

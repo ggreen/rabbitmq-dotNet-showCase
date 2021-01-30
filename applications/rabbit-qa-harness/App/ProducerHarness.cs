@@ -5,6 +5,7 @@ using rabbit_api.API;
 using System.Threading;
 using RabbitMQ.Client.Exceptions;
 using System.Collections.Generic;
+using RabbitMQ.Client;
 
 namespace rabbit_qa_harness.App
 {
@@ -19,16 +20,20 @@ namespace rabbit_qa_harness.App
         private readonly RabbitExchangeType type;
         private readonly int repeatCount;
         private string contentType;
+        private Rabbit rabbit;
 
         private readonly byte[] msg;
         private readonly int producerCount;
 
+        private RabbitPublisher publisher;
+
         private readonly string DEFAULT_CONTENT_TYPE = "text/plain";
         private static readonly object JSON_CONTENT_TYPE = "application/json";
-        private readonly int errorSleepPeriodMs = 30000;
+        private readonly int errorSleepPeriodMs;
 
         internal static string GetMessage(ISettings config, string contentType)
         {
+
             string message = config.GetProperty("MESSAGE", "");
             int messageSize = config.GetPropertyInteger("MESSAGE_SIZE", 0);
 
@@ -74,6 +79,7 @@ namespace rabbit_qa_harness.App
             exchange = config.GetProperty("EXCHANGE");
             routingKey = config.GetProperty("ROUTING_KEY", "");
             sleepPeriodMs = config.GetPropertyInteger("SLEEP_PERIOD_MS");
+            errorSleepPeriodMs = config.GetPropertyInteger("ERROR_SLEEP_PERIOD_MS", 15000);
             type = Enum.Parse<RabbitExchangeType>(config.GetProperty("EXCHANGE_TYPE"));
             repeatCount = config.GetPropertyInteger("REPEAT_COUNT", 1);
             producerCount = config.GetPropertyInteger("PRODUCER_COUNT", 1);
@@ -87,59 +93,81 @@ namespace rabbit_qa_harness.App
 
         public void Run()
         {
-            using (Rabbit rabbit = Rabbit.Connect())
+            Connect();
+            long sentCount = 0;
+
+            try
             {
-
-                var builder = rabbit.PublishBuilder().
-                                SetExchange(exchange)
-                                .SetConfirmPublish()
-                                .SetExchangeType(type)
-                                .SetContentType(contentType);
-
-                var queue = config.GetProperty("QUEUE","");
-                if(queue.Length > 0)
-                {
-                    builder.UseQueueType(Enum.Parse<RabbitQueueType>(config.GetProperty("QUEUE_TYPE")));
-                    builder.AddQueue(queue,config.GetProperty("ROUTING_KEY",""));
-                }
-                
-                List<Thread> list = new List<Thread>(this.producerCount);
-
-                long sentCount = 0;
-
-                using (RabbitPublisher publisher = builder.Build())
+                for (int i = 0; i < repeatCount; i++)
                 {
                     try
                     {
-                        for (int i = 0; i < repeatCount; i++)
+                        publisher.Publish(msg, routingKey);
+                        sentCount++;
+                        Console.WriteLine($"PRODUCER: Msg sent {message.Length} byte count {sentCount}");
+                        Thread.Sleep(sleepPeriodMs);
+                    }
+                    catch (AlreadyClosedException alreadyClosedException)
+                    {
+                        Console.WriteLine($"PRODUCER:  Connection closed {alreadyClosedException} sentCount:{sentCount}");
+
+                        while (true)
                         {
                             try
                             {
-                                publisher.Publish(msg, routingKey);
-                                sentCount++;
-                                Console.WriteLine($"PRODUCER: Msg sent {message.Length} byte count {sentCount}");
-                                Thread.Sleep(sleepPeriodMs);
+                                Connect();
+                                break;
                             }
-                            catch (RabbitMQClientException rabbitException)
+                            catch (Exception exception)
                             {
-                                Console.WriteLine($"PRODUCER:  Connection closed {rabbitException}, reopening");
+                                Console.WriteLine($"{exception} will retry in {errorSleepPeriodMs} milliseconds");
                                 Thread.Sleep(errorSleepPeriodMs);
                             }
-                            catch (Exception e)
-                            {
-                                Console.WriteLine($"PRODUCER: EXCEPTION:{e}");
-                                Thread.Sleep(errorSleepPeriodMs);
-                            }
-
                         }
-                        Console.WriteLine($"PRODUCER: Sent {message.Length} bytes {sentCount} time(s)");
+                    }
+                    catch (RabbitMQClientException rabbitException)
+                    {
+                        Console.WriteLine($"PRODUCER:  client exce[topm] {rabbitException}, sentCount:{sentCount} sleeping {errorSleepPeriodMs} milliseconds");
+                        Thread.Sleep(errorSleepPeriodMs);
+                        Console.WriteLine($"PRODUCER: WOKE after client exception {rabbitException.Message} sentCount:{sentCount}");
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine($"PRODUCER: EXCEPTION:{e}");
+                        Console.WriteLine($"PRODUCER: EXCEPTION:{e} sentCount:{sentCount} sleeping {errorSleepPeriodMs} milliseconds");
+                        Thread.Sleep(errorSleepPeriodMs);
+                        Console.WriteLine($"PRODUCER: WOKE after non RabbitMQ exception {e.Message} sentCount:{sentCount}");
                     }
+
                 }
+                Console.WriteLine($"PRODUCER: Sent {message.Length} bytes {sentCount} time(s)");
             }
+            catch (Exception e)
+            {
+                Console.WriteLine($"PRODUCER: EXCEPTION:{e}");
+            }
+        }
+
+        private void Connect()
+        {
+            rabbit = Rabbit.Connect();
+
+            var builder = rabbit.PublishBuilder().
+                            SetExchange(exchange)
+                            .SetConfirmPublish()
+                            .SetExchangeType(type)
+                            .SetContentType(contentType);
+
+            var queue = config.GetProperty("QUEUE", "");
+            if (queue.Length > 0)
+            {
+                builder.UseQueueType(Enum.Parse<RabbitQueueType>(config.GetProperty("QUEUE_TYPE")));
+                builder.AddQueue(queue, config.GetProperty("ROUTING_KEY", ""));
+            }
+
+            List<Thread> list = new List<Thread>(this.producerCount);
+
+
+            publisher = builder.Build();
 
         }
     }
