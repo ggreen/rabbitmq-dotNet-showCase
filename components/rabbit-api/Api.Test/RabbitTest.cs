@@ -30,6 +30,27 @@ namespace rabbit_api.API.Test
         private Mock<IBasicProperties> mockProperties = new Mock<IBasicProperties>();
         private ushort expectedPrefetch = 22;
 
+        [TestMethod]
+        public void ToAmqpTcpEndpoints()
+        {
+            Assert.IsNull(Rabbit.ToAmqpTcpEndpoints(null));
+
+            IList<Uri> list = new List<Uri>();
+            string uri1Text = "amqps://guest:guest@localhost:5671/";
+            Uri uri1 = new Uri(uri1Text);
+            list.Add(uri1);
+
+            IList<AmqpTcpEndpoint> expected = Rabbit.ToAmqpTcpEndpoints(list);
+            Assert.IsNotNull(expected);
+            Assert.IsTrue(expected.Count > 0);
+           AmqpTcpEndpoint amqpTcpEndpoint1 = expected[0];
+           Assert.AreEqual("localhost",amqpTcpEndpoint1.HostName);
+           Assert.AreEqual(5671,amqpTcpEndpoint1.Port);
+           Assert.IsTrue(amqpTcpEndpoint1.Protocol.ApiName.Contains("AMQP"));
+           Assert.IsTrue(amqpTcpEndpoint1.Ssl.Enabled);
+           
+        }
+
         [TestInitialize]
         public void InitializeRabbitTest()
         {
@@ -38,7 +59,7 @@ namespace rabbit_api.API.Test
             mockChannel.Setup(c=> c.CreateBasicProperties()).Returns(mockProperties.Object);
 
             
-            subject = new Rabbit(mockFactory.Object,expectedPrefetch);
+            subject = new Rabbit(mockFactory.Object,null,false,expectedPrefetch);
          
         }
 

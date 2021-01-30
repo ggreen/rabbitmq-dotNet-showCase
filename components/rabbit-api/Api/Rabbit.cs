@@ -39,44 +39,67 @@ namespace rabbit_api.API
                 UserName = userName,
                 Password = new string(config.GetPropertyPassword("RABBIT_PASSWORD","".ToCharArray()))
             },
+            null,
+            false,
             qosPreFetchLimit
             )
         {
         }
-         private Rabbit(IList<Uri> endpoints, Boolean sslEnabled, string clientProvidedName, int networkRecoveryIntervalSecs, ushort qosPreFetchLimit) : 
+
+        private Rabbit(IList<Uri> endpoints, Boolean sslEnabled, string clientProvidedName, int networkRecoveryIntervalSecs, ushort qosPreFetchLimit) : 
              this(new ConnectionFactory()
             {
                 Uri = endpoints[0],
                 ClientProvidedName = clientProvidedName,
                 AutomaticRecoveryEnabled = true,
-                Ssl = new SslOption(){
-                    Enabled = sslEnabled,
-                 AcceptablePolicyErrors = SslPolicyErrors.RemoteCertificateNameMismatch |
-                                                SslPolicyErrors.RemoteCertificateChainErrors} ,
+                Ssl = CreateSslOption(sslEnabled) ,
 
                 NetworkRecoveryInterval = TimeSpan.FromSeconds(networkRecoveryIntervalSecs)
             },
+            endpoints,
+            sslEnabled,
             qosPreFetchLimit
             )
         {
-            this.endpoints = endpoints;
         }
 
-        internal Rabbit(IConnectionFactory factory,ushort  qosPreFetchLimit)
+        internal static IList<AmqpTcpEndpoint>  ToAmqpTcpEndpoints(IList<Uri> endpoints)
+        {
+            if(endpoints == null)
+            return null;
+            
+                IList<AmqpTcpEndpoint> amqpEndpoints = new List<AmqpTcpEndpoint>(endpoints.Count);
+                foreach( Uri uri in endpoints)
+                {
+                    amqpEndpoints.Add(new AmqpTcpEndpoint(uri,CreateSslOption(uri)));
+                }
+                return amqpEndpoints;
+        }
+    
+
+        internal static SslOption CreateSslOption(Uri uri)
+        {
+           bool sslEnabled = uri.OriginalString.ToLower().Contains("amqps");
+           return CreateSslOption(sslEnabled);
+        }
+         internal static SslOption CreateSslOption(bool sslEnabled)
+         {  return new SslOption(){
+                    Enabled = sslEnabled,
+                 AcceptablePolicyErrors = SslPolicyErrors.RemoteCertificateNameMismatch |
+                                                SslPolicyErrors.RemoteCertificateChainErrors};
+        }
+
+        internal Rabbit(IConnectionFactory factory,IList<Uri> endpoints, Boolean sslEnabled, ushort  qosPreFetchLimit)
         {
             this.factory = factory;
 
             this.QosPreFetchLimit = qosPreFetchLimit;
+            this.endpoints = endpoints;
 
             if(this.endpoints != null && this.endpoints.Count > 0)
             {
-                IList<AmqpTcpEndpoint> amqpEndpoints = new List<AmqpTcpEndpoint>(this.endpoints.Count);
-                foreach( Uri uri in this.endpoints)
-                {
-                    amqpEndpoints.Add(new AmqpTcpEndpoint(uri.Host,uri.Port));
-                }
-
-                connection = factory.CreateConnection(amqpEndpoints);
+                connection = factory.CreateConnection(
+                    ToAmqpTcpEndpoints(endpoints));
             }
             else
             {
@@ -86,6 +109,8 @@ namespace rabbit_api.API
             connection.ConnectionBlocked += HandleBlocked;
             connection.ConnectionUnblocked += HandleUnblocked;
         }
+
+        
 
         private void HandleBlocked(object sender, ConnectionBlockedEventArgs args)
         {

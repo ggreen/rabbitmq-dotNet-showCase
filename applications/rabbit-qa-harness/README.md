@@ -44,7 +44,7 @@ dotnet run  --EXCHANGE_TYPE=direct  --EXCHANGE=exchange_imani  --QUEUE=queue_ima
 
 ```shell script
 
-dotnet run  --EXCHANGE_TYPE=topic  --EXCHANGE=exchange_imani_topic  --MESSAGE="{\"id\": \"1\"}" --RABBIT_PORT=5672 --ROUTING_KEY=1  --REPEAT_COUNT=1 --WAIT_FOR_CONFIRMATION_SECONDS=1  --RABBIT_CLIENT_NAME=rabbitMqQAHarness --SLEEP_PERIOD_MS=1000 --PRODUCERS=1 --CONSUMERS=0 --RABBIT_URIS="amqp://guest:guest@$HOSTNAME:5672/"  --PRODUCERS=1 --CONSUMERS=0 --ROUTING_KEY="play.upstairs.*"
+dotnet run  --EXCHANGE_TYPE=topic  --EXCHANGE=exchange_imani_topic  --MESSAGE="{\"id\": \"1\"}" --RABBIT_PORT=5672 --ROUTING_KEY=1  --REPEAT_COUNT=1 --WAIT_FOR_CONFIRMATION_SECONDS=1  --RABBIT_CLIENT_NAME=rabbitMqQAHarness --SLEEP_PERIOD_MS=1000 --PRODUCERS=1 --CONSUMERS=0 --RABBIT_URIS="amqp://guest:guest@$HOSTNAME:5672/"  --PRODUCERS=1 --CONSUMERS=0 --ROUTING_KEY="play.upstairs.today"
 ```
 
 ### CONSUMER upstairs
@@ -66,11 +66,11 @@ dotnet run  --EXCHANGE_TYPE=topic   --EXCHANGE=exchange_imani_topic --QUEUE=queu
 
 
 ```shell script
-dotnet run  --EXCHANGE_TYPE=direct  --EXCHANGE=exchange_imani --QUEUE=queue_imani --WAIT_FOR_CONFIRMATION_SECONDS=1   --PRODUCERS=0 --RABBIT_CLIENT_NAME=multipleProducers --SLEEP_PERIOD_MS=1000  --RABBIT_URIS="amqp://guest:guest@$HOSTNAME:5672/" --QUEUE_TYPE=quorum  --CONSUMERS=10
+dotnet run  --EXCHANGE_TYPE=direct  --EXCHANGE=exchange_imani --QUEUE=queue_imani --WAIT_FOR_CONFIRMATION_SECONDS=1   --PRODUCERS=0 --RABBIT_CLIENT_NAME=multipleConsumers --SLEEP_PERIOD_MS=1000  --RABBIT_URIS="amqp://guest:guest@$HOSTNAME:5672/" --QUEUE_TYPE=quorum  --CONSUMERS=10
 ```
 
 ```shell script
-dotnet run  --EXCHANGE_TYPE=direct  --EXCHANGE=exchange_imani  --MESSAGE="{\"id\": \"1\"}" --ROUTING_KEY=1 --WAIT_FOR_CONFIRMATION_SECONDS=1  --RABBIT_CLIENT_NAME=multipleConsumers --SLEEP_PERIOD_MS=1000  --CONSUMERS=0 --RABBIT_URIS="amqp://guest:guest@$HOSTNAME:5672/"  --PRODUCERS=5 --REPEAT_COUNT=1000
+dotnet run  --EXCHANGE_TYPE=direct  --EXCHANGE=exchange_imani  --MESSAGE="{\"id\": \"1\"}" --ROUTING_KEY=1 --WAIT_FOR_CONFIRMATION_SECONDS=1  --RABBIT_CLIENT_NAME=multipleProducers --SLEEP_PERIOD_MS=1000  --CONSUMERS=0 --RABBIT_URIS="amqp://guest:guest@$HOSTNAME:5672/"  --PRODUCERS=5 --REPEAT_COUNT=1000
 ```
 
 
