@@ -185,12 +185,12 @@ namespace rabbit_api.API.Test
         [TestMethod]
         public void SetContentType()
         {
-            string expected = "application/json";
-            RabbitPublisherBuilder actual = subject.SetContentType(expected);
+     
+            RabbitPublisherBuilder actual = subject.SetContentType(expectedContentType);
 
             Assert.IsNotNull(actual);
 
-            Assert.AreEqual(expected, actual.ContentType);
+            Assert.AreEqual(expectedContentType, actual.ContentType);
         }
        
 

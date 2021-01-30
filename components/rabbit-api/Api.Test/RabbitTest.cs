@@ -51,6 +51,22 @@ namespace rabbit_api.API.Test
            
         }
 
+        [TestMethod]
+        public void CreateSslOption_bool()
+        {
+            Assert.IsTrue(Rabbit.CreateSslOption(true).Enabled);
+            Assert.IsFalse(Rabbit.CreateSslOption(false).Enabled);
+        }
+
+        [TestMethod]
+        public void CreateSslOption_Uri()
+        {
+            
+            Assert.IsTrue(Rabbit.CreateSslOption(new Uri("amqps://guest:guest@localhost:5671/")).Enabled);
+            Assert.IsFalse(Rabbit.CreateSslOption(new Uri("amqp://guest:guest@localhost:5671/")).Enabled);
+        }
+
+
         [TestInitialize]
         public void InitializeRabbitTest()
         {
