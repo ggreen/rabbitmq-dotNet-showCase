@@ -12,7 +12,7 @@ namespace rabbit_api.API
     public class RabbitPublisher : IDisposable
     {
         private readonly IBasicProperties basicProperties;
-        private readonly IModel channel;
+        private readonly IRabbitConnectionCreator creator;
         private readonly string exchange;
         private readonly bool requireReliableDelivery;
 
@@ -21,9 +21,9 @@ namespace rabbit_api.API
         private int WAIT_FOR_CONFIRMATION_SECONDS = new ConfigSettings().GetPropertyInteger("RABBIT_WAIT_FOR_CONFIRMATION_SECS",30);
 
 
-        public RabbitPublisher(IModel channel, string exchange, IBasicProperties basicProperties, bool confirmPublish)
+        public RabbitPublisher(IRabbitConnectionCreator creator, string exchange, IBasicProperties basicProperties, bool confirmPublish)
         {
-            this.channel = channel;
+            this.creator = creator;
             this.exchange = exchange;
             this.basicProperties = basicProperties;
             this.requireReliableDelivery = confirmPublish;
@@ -34,7 +34,7 @@ namespace rabbit_api.API
 
         public void Dispose()
         {
-            this.channel.Close();
+            this.creator.Dispose();
         }
 
         public void Publish(byte[] body, string routingKey)
@@ -45,7 +45,7 @@ namespace rabbit_api.API
             if (routingKey == null)
                 throw new ArgumentException("routingKey cannot be null");
 
-            channel.BasicPublish(exchange: exchange,
+            creator.GetChannel().BasicPublish(exchange: exchange,
                                  routingKey: routingKey,
                                  mandatory: true,
                                  basicProperties: basicProperties,
@@ -53,7 +53,7 @@ namespace rabbit_api.API
 
             if (this.requireReliableDelivery)
             {
-                channel.WaitForConfirmsOrDie(waitFromConfirmationTimeSpan);
+                creator.GetChannel().WaitForConfirmsOrDie(waitFromConfirmationTimeSpan);
             }
             
         }

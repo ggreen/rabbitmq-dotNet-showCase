@@ -35,6 +35,15 @@ namespace rabbit_api.API.Test
             Console.WriteLine("FATAL: error Connection Shutdown");
         }
 
+          [TestMethod]
+        public void GetChannel()
+        {
+            var actual = subject.GetChannel();
+            Assert.IsNotNull(actual);
+
+            
+        }
+
         [TestMethod]
         public void ToAmqpTcpEndpoints()
         {
@@ -75,22 +84,12 @@ namespace rabbit_api.API.Test
         [TestInitialize]
         public void InitializeRabbitTest()
         {
-            mockFactory.Setup( f => f.CreateConnection()).Returns(mockConnection.Object);
-            mockConnection.Setup(c => c.CreateModel()).Returns(mockChannel.Object);
-            mockChannel.Setup(c=> c.CreateBasicProperties()).Returns(mockProperties.Object);
-
             
+            mockChannel.Setup(c=> c.CreateBasicProperties()).Returns(mockProperties.Object);
+            mockConnection.Setup(c => c.CreateModel()).Returns(mockChannel.Object);
+            mockFactory.Setup( f => f.CreateConnection()).Returns(mockConnection.Object);
             subject = new Rabbit(mockFactory.Object,null,false,expectedPrefetch);
-         
         }
-
-        [TestMethod]
-        public void Constructor()
-        {
-            mockFactory.Verify(f => f.CreateConnection());
-               Assert.AreEqual(expectedPrefetch,subject.QosPreFetchLimit);
-        }
-
       
         [TestMethod]
         public void Publish()
@@ -114,14 +113,23 @@ namespace rabbit_api.API.Test
         }
 
         [TestMethod]
-        public void Dispose()
+        public void Dispose_WhenNoConnection()
         {
-            
             using(subject){
 
             }
+            mockConnection.Verify( c => c.Dispose(),Times.Never);
 
-            mockConnection.Verify( c => c.Close());
+        }
+
+        [TestMethod]
+        public void Dispose()
+        {
+            using(subject){
+                subject.GetConnection();
+            }
+            mockConnection.Verify( c => c.Dispose());
+
         }
 
         [TestMethod]

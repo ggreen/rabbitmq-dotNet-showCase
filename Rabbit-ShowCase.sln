@@ -17,6 +17,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nserviceBus", "nserviceBus"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nserviceBusProducer", "applications\nserviceBus\nserviceBusProducer\nserviceBusProducer.csproj", "{A0336130-CF7A-4C2F-8207-2521F36D0574}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "delay-exchange-harness", "applications\delayed-exchange-harness\delay-exchange-harness.csproj", "{84C3F577-9DC0-4C8E-A4C0-43F4AAD1D828}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -78,6 +80,18 @@ Global
 		{A0336130-CF7A-4C2F-8207-2521F36D0574}.Release|x64.Build.0 = Release|Any CPU
 		{A0336130-CF7A-4C2F-8207-2521F36D0574}.Release|x86.ActiveCfg = Release|Any CPU
 		{A0336130-CF7A-4C2F-8207-2521F36D0574}.Release|x86.Build.0 = Release|Any CPU
+		{84C3F577-9DC0-4C8E-A4C0-43F4AAD1D828}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84C3F577-9DC0-4C8E-A4C0-43F4AAD1D828}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84C3F577-9DC0-4C8E-A4C0-43F4AAD1D828}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{84C3F577-9DC0-4C8E-A4C0-43F4AAD1D828}.Debug|x64.Build.0 = Debug|Any CPU
+		{84C3F577-9DC0-4C8E-A4C0-43F4AAD1D828}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{84C3F577-9DC0-4C8E-A4C0-43F4AAD1D828}.Debug|x86.Build.0 = Debug|Any CPU
+		{84C3F577-9DC0-4C8E-A4C0-43F4AAD1D828}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84C3F577-9DC0-4C8E-A4C0-43F4AAD1D828}.Release|Any CPU.Build.0 = Release|Any CPU
+		{84C3F577-9DC0-4C8E-A4C0-43F4AAD1D828}.Release|x64.ActiveCfg = Release|Any CPU
+		{84C3F577-9DC0-4C8E-A4C0-43F4AAD1D828}.Release|x64.Build.0 = Release|Any CPU
+		{84C3F577-9DC0-4C8E-A4C0-43F4AAD1D828}.Release|x86.ActiveCfg = Release|Any CPU
+		{84C3F577-9DC0-4C8E-A4C0-43F4AAD1D828}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{8EA979BF-F5C3-47BD-8DA7-2A02B99092BC} = {CB7C04B5-A082-4810-8AC0-3929822567DE}
@@ -85,5 +99,6 @@ Global
 		{6E3A201C-0043-4A81-B325-0A3A7A2B26D9} = {5FAEA03C-560E-4528-9FF9-3B80255CC1DC}
 		{14C6825D-740D-4383-B79A-0D1AB6189E20} = {5FAEA03C-560E-4528-9FF9-3B80255CC1DC}
 		{A0336130-CF7A-4C2F-8207-2521F36D0574} = {14C6825D-740D-4383-B79A-0D1AB6189E20}
+		{84C3F577-9DC0-4C8E-A4C0-43F4AAD1D828} = {5FAEA03C-560E-4528-9FF9-3B80255CC1DC}
 	EndGlobalSection
 EndGlobal

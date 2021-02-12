@@ -15,11 +15,14 @@ namespace rabbit_api.API
         public bool IsConfirmPublish { get; private set; }
         public string ContentType { get; private set; }
 
+        private IRabbitConnectionCreator connectionCreator;
 
-        public RabbitPublisherBuilder(IModel channel, ushort qosPreFetchLimit) : base(channel, qosPreFetchLimit)
+
+        public RabbitPublisherBuilder(IRabbitConnectionCreator connectionCreator, ushort qosPreFetchLimit) : base(connectionCreator, qosPreFetchLimit)
         {
+            this.connectionCreator = connectionCreator;
             Persistent = true;
-            channel.BasicReturn += HandleReturn;
+            connectionCreator.GetChannel().BasicReturn += HandleReturn;
         }
 
         private void HandleReturn(object sender, BasicReturnEventArgs args)
@@ -48,19 +51,19 @@ namespace rabbit_api.API
         {
             if (IsConfirmPublish)
             {
-                this.channel.ConfirmSelect();
+                this.connectionCreator.GetChannel().ConfirmSelect();
             }
 
             ConstructExchange();
 
 
-            IBasicProperties basicProperties = channel.CreateBasicProperties();
+            IBasicProperties basicProperties = this.connectionCreator.GetChannel().CreateBasicProperties();
             basicProperties.Persistent = Persistent;
             basicProperties.ContentType = ContentType;
 
             basicProperties.DeliveryMode = 2; // persistent
 
-            return new RabbitPublisher(this.channel, Exchange, basicProperties, IsConfirmPublish);
+            return new RabbitPublisher(this.connectionCreator, Exchange, basicProperties, IsConfirmPublish);
         }
 
         public RabbitPublisherBuilder SetExchangeType(RabbitExchangeType type)

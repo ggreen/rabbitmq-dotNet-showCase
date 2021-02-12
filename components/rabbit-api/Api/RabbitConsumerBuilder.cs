@@ -15,9 +15,11 @@ namespace rabbit_api.API
 
         public bool AutoAck { get; set; }
 
+        private IRabbitConnectionCreator creator;
 
-        public RabbitConsumerBuilder(IModel channel, ushort qosPreFetchLimit) : base(channel, qosPreFetchLimit)
+        public RabbitConsumerBuilder(IRabbitConnectionCreator creator, ushort qosPreFetchLimit) : base(creator, qosPreFetchLimit)
         {
+            this.creator = creator;
         }
 
         public RabbitConsumerBuilder SetExchange(string exchange)
@@ -56,7 +58,7 @@ namespace rabbit_api.API
             ConstructExchange();
             ConstructQueues();
 
-            return new RabbitConsumer(this.channel, consumerQueue, AutoAck);
+            return new RabbitConsumer(this.creator, consumerQueue, AutoAck);
         }
 
         public RabbitConsumerBuilder SetSingleActiveConsumer()

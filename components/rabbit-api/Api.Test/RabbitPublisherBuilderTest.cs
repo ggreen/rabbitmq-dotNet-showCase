@@ -16,6 +16,8 @@ namespace rabbit_api.API.Test
     {
         private RabbitPublisherBuilder subject;
 
+        private Mock<IRabbitConnectionCreator> mockCreator;
+        private Mock<IConnection> mockConnection;
         private Mock<IModel> mockChannel;
         private string expectedExchange = "myexchange";
         private string expectedQueue = "queue1";
@@ -36,11 +38,16 @@ namespace rabbit_api.API.Test
             expectedTuple = new Tuple<string, string>(expectedQueue,expectedRoutingKey);
 
             mockProperties = new Mock<IBasicProperties>();
-
+            this.mockCreator  = new Mock<IRabbitConnectionCreator>();
+            this.mockConnection = new Mock<IConnection>();
             mockChannel = new Mock<IModel>();
+
+            this.mockCreator.Setup( c => c.GetConnection()).Returns(mockConnection.Object);
+            this.mockConnection.Setup( c => c.CreateModel()).Returns(mockChannel.Object);
+        
             mockChannel.Setup(c => c.CreateBasicProperties()).Returns(mockProperties.Object);
 
-            subject = new RabbitPublisherBuilder(mockChannel.Object,expectedPreFetchLimit);
+            subject = new RabbitPublisherBuilder(mockCreator.Object,expectedPreFetchLimit);
         }
 
 
@@ -220,6 +227,9 @@ namespace rabbit_api.API.Test
              mockChannel.Verify( c => c.ConfirmSelect());
         }
 
+      
+
+
         private void VerifyBuild()
         {
            
@@ -232,6 +242,9 @@ namespace rabbit_api.API.Test
 
             var actual = subject.Build();
             Assert.IsNotNull(actual);
+
+
+            // mockChannel.Verify(c => c.ExchangeDeclarePassive(expectedExchange));
 
             mockChannel.Verify(c => c.ExchangeDeclare(expectedExchange,
             expectedType.ToString(),

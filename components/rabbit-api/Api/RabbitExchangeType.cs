@@ -9,5 +9,6 @@ namespace rabbit_api.API
         fanout,
         topic, 
         headers
+        
     }
 }

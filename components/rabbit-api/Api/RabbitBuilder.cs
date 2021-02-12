@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using RabbitMQ.Client;
+using RabbitMQ.Client.Exceptions;
 
 /// <summary>
 /// Author: Gregory Green
@@ -14,8 +15,11 @@ namespace rabbit_api.API
         private const string QUEUE_MODE_PROP = "x-queue-mode";
         private const string QUORUM_QUEUE_MAX_IN_MEMORY_LEN_PROP = "x-max-in-memory-length";
         private const string QUEUE_TYPE_PROP = "x-queue-type";
+        //private IConnection connection;
 
-        protected IModel channel;
+        private IRabbitConnectionCreator creator;
+       // protected IModel channel;
+
         /// <summary>
         /// The client can request that messages be sent in advance so that when the client 
         /// finishes processing a message, the following message is already held locally, 
@@ -31,6 +35,32 @@ namespace rabbit_api.API
         private readonly uint qosPrefetchSize = 0;
         private readonly bool qosGlobal = false;
         protected HashSet<Tuple<string, string>> queues = new HashSet<Tuple<string, string>>();
+
+        internal RabbitBuilder(IRabbitConnectionCreator connectionCreator, ushort qosPreFetchLimit)
+        {
+            Init(connectionCreator,qosPreFetchLimit);
+
+        }
+        internal void Init(IRabbitConnectionCreator connectionCreator, ushort qosPreFetchLimit)
+        {
+            this.creator = connectionCreator;
+            //this.connection = connectionCreator.CreateConnection();
+            
+            // connection.ConnectionShutdown += HandleShutdown;
+
+            //this.channel = this.connection.CreateModel();
+
+            Durable = true;
+            this.QosPreFetchLimit = qosPreFetchLimit;
+            this.QueueArguments = new Dictionary<string, object>();
+        }
+
+        public virtual void HandleShutdown(object sender, ShutdownEventArgs e)
+        {
+            
+        }
+
+        
 
         public bool IsLazyQueues { get; internal set; }
 
@@ -53,18 +83,7 @@ namespace rabbit_api.API
             }
         }
 
-        internal RabbitBuilder(IModel channel, ushort qosPreFetchLimit)
-        {
-            Init(channel,qosPreFetchLimit);
-
-        }
-        internal void Init(IModel channel, ushort qosPreFetchLimit)
-        {
-            this.channel = channel;
-            Durable = true;
-            this.QosPreFetchLimit = qosPreFetchLimit;
-            this.QueueArguments = new Dictionary<string, object>();
-        }
+        
         public RabbitExchangeType ExchangeType { get; set; }
 
         public string Exchange { get; internal set; }
@@ -86,10 +105,19 @@ namespace rabbit_api.API
             if (String.IsNullOrEmpty(Exchange))
                 throw new ArgumentException("Set Exchange required");
 
-            this.channel.BasicQos(this.qosPrefetchSize, this.QosPreFetchLimit, this.qosGlobal);
+            creator.GetChannel().BasicQos(this.qosPrefetchSize, this.QosPreFetchLimit, this.qosGlobal);
 
-            this.channel.ExchangeDeclare
-            (Exchange, ExchangeType.ToString(), Durable, AutoDelete);
+
+            try{
+                 creator.GetChannel().ExchangeDeclare
+                (Exchange, ExchangeType.ToString(), Durable, AutoDelete);
+                
+            }
+            catch(OperationInterruptedException e)
+            {
+                Console.WriteLine($"WARNING: {e.Message} so using EXISTING exchange");
+                creator.GetChannel().ExchangeDeclarePassive(Exchange);
+            }
         }
         internal void ConstructQueues()
         {
@@ -97,8 +125,18 @@ namespace rabbit_api.API
 
             foreach (var queue in queues)
             {
-                this.channel.QueueDeclare(queue.Item1, Durable, QueueExclusive, AutoDelete, QueueArguments);
-                this.channel.QueueBind(queue.Item1, Exchange, queue.Item2);
+                try
+                {
+                    creator.GetChannel().QueueDeclare(queue.Item1, Durable, QueueExclusive, AutoDelete, QueueArguments);
+                }
+                catch(OperationInterruptedException e) {
+
+                    Console.WriteLine($"WARNING: {e.Message} so using EXISTING queue");
+
+                    creator.GetChannel().QueueDeclarePassive(queue.Item1);
+                }
+
+                creator.GetChannel().QueueBind(queue.Item1, Exchange, queue.Item2);
             }
         }
 
@@ -161,7 +199,5 @@ namespace rabbit_api.API
                 this.QueueArguments[QUEUE_MODE_PROP] = "lazy";
             }
         }
-
-
     }
 }

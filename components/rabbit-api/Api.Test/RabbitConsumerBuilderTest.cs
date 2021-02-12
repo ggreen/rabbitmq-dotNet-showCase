@@ -12,7 +12,9 @@ namespace rabbit_api.API
     [TestClass]
     public class RabbitConsumerBuilderTest
     {
-        private Mock<IModel> mockChannel;
+        private Mock<IRabbitConnectionCreator> mockConnectionCreator;
+        private Mock<IModel> mockModel;
+        private Mock<IConnection> mockConnection;
         private RabbitConsumerBuilder subject;
         private string expectedExchange = "myexchange";
         private string expectedQueue = "queue1";
@@ -25,6 +27,7 @@ namespace rabbit_api.API
         private string expectedRoutingKey = "myKey";
         private Tuple<string, string> expectedTuple;
         private IDictionary<string, object> expectedExchangeArguments = null;
+   
         private readonly string expectedSingleActiveConsumerProp = "x-single-active-consumer";
         private readonly string expectedQuorumQueueProp = "x-queue-type";
         private readonly string expectedQuorumQueueValue = "quorum";
@@ -33,8 +36,12 @@ namespace rabbit_api.API
         [TestInitialize]
         public void InitializeRabbitConsumerBuilderTest()
         {
-            mockChannel = new Mock<IModel>();
-            subject = new RabbitConsumerBuilder(mockChannel.Object, expectedPreFetchLimit);
+            mockConnectionCreator = new Mock<IRabbitConnectionCreator>();
+            mockConnection = new Mock<IConnection>();
+            mockModel = new Mock<IModel>();
+            mockConnection.Setup( connection => connection.CreateModel()).Returns(mockModel.Object);
+            mockConnectionCreator.Setup(c => c.GetConnection()).Returns(mockConnection.Object);
+            subject = new RabbitConsumerBuilder(mockConnectionCreator.Object, expectedPreFetchLimit);
             expectedTuple = new Tuple<string, string>(expectedQueue, expectedRoutingKey);
         }
 
@@ -219,19 +226,21 @@ namespace rabbit_api.API
             var actual = subject.Build();
             Assert.IsNotNull(actual);
 
-            mockChannel.Verify(c => c.ExchangeDeclare(expectedExchange,
+            mockConnectionCreator.Verify(creator => creator.GetConnection());
+
+            mockModel.Verify(c => c.ExchangeDeclare(expectedExchange,
             expectedType.ToString(),
             expectedDurable,
             expectedAutoDelete,
             expectedExchangeArguments));
 
-            mockChannel.Verify(c => c.BasicQos(0, expectedPreFetchLimit, false));
+            mockModel.Verify(c => c.BasicQos(0, expectedPreFetchLimit, false));
 
-            mockChannel.Verify(c => c.QueueDeclare(expectedQueue, expectedDurable,
-           expectedExclusive, expectedAutoDelete, expectedQueueArguments));
+            mockModel.Verify(c => c.QueueDeclare(expectedQueue, expectedDurable,
+                       expectedExclusive, expectedAutoDelete, expectedQueueArguments));
 
 
-            mockChannel.Verify(c => c.QueueBind(expectedQueue, expectedExchange, expectedRoutingKey, null));
+            mockModel.Verify(c => c.QueueBind(expectedQueue, expectedExchange, expectedRoutingKey, null));
 
         }
     }

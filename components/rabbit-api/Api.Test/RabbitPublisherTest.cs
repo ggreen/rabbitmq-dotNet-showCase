@@ -15,17 +15,24 @@ namespace rabbit_api.Api.Test
     public class RabbitPublisherTest
     {
         private string exchange = "exchange";
-        private Mock<IModel> mockedChannel = new Mock<IModel>();
+        private Mock<IRabbitConnectionCreator> mockedCreator;
+        private Mock<IModel> mockedChannel;
+        private Mock<IConnection> mockedConnection;
         private RabbitPublisher subject;
-        private Mock<IBasicProperties> basicProperties = new Mock<IBasicProperties>();
+        private Mock<IBasicProperties> basicProperties;
         private readonly bool confirmPublish = true;
         //private readonly string contentType = "application/json";
 
         [TestInitialize]
         public void InitializeRabbitPublisherTest()
         {
-
-            subject = new RabbitPublisher(mockedChannel.Object, exchange, basicProperties.Object,confirmPublish);
+            mockedCreator = new Mock<IRabbitConnectionCreator>();
+            basicProperties = new Mock<IBasicProperties>();
+            mockedChannel = new Mock<IModel>();
+            mockedConnection = new Mock<IConnection>();
+            mockedConnection.Setup(c => c.CreateModel()).Returns(mockedChannel.Object);
+            mockedCreator.Setup(c=> c.GetConnection()).Returns(mockedConnection.Object);
+            subject = new RabbitPublisher(mockedCreator.Object, exchange, basicProperties.Object,confirmPublish);
         }
 
         [TestMethod]
@@ -35,7 +42,7 @@ namespace rabbit_api.Api.Test
             {
 
             }
-            mockedChannel.Verify(c => c.Close());
+            mockedChannel.Verify(c => c.Dispose());
         }
 
         [TestMethod]
@@ -47,8 +54,6 @@ namespace rabbit_api.Api.Test
             subject.Publish(body, routingKey));
 
         }
-
-
           
 
         [TestMethod]
@@ -63,7 +68,7 @@ namespace rabbit_api.Api.Test
         [TestMethod]
         public void Publish_DoesWait_WhenNotConfirm()
         {
-            this.subject = new RabbitPublisher(mockedChannel.Object, exchange, basicProperties.Object,false);
+            this.subject = new RabbitPublisher(mockedCreator.Object, exchange, basicProperties.Object,false);
 
             byte[] body = Encoding.UTF8.GetBytes("hello");
             string routingKey = "";

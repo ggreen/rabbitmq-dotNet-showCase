@@ -15,13 +15,29 @@ namespace rabbit_api.Api.Test
     {
         private string queue = "queue";
         private bool autoAck = false;
-        private Mock<IModel> mockedChannel = new Mock<IModel>();
+        private Mock<IConnectionFactory> mockFactory;
+        
+        private Mock<IConnection> mockConnection;
+        private Mock<IModel> mockChannel;
+        
+
+        private Mock<IRabbitConnectionCreator> mockedCreator;
         private RabbitConsumer subject;
 
         [TestInitialize]
         public void InitializeRabbitConsumerTest()
         {
-            subject = new RabbitConsumer(mockedChannel.Object, queue,autoAck);
+            mockedCreator = new Mock<IRabbitConnectionCreator>();
+            mockFactory = new Mock<IConnectionFactory>();
+            mockConnection = new Mock<IConnection>();
+            mockChannel = new Mock<IModel>();
+
+            mockConnection.Setup(c => c.CreateModel()).Returns(mockChannel.Object);
+            mockFactory.Setup( f => f.CreateConnection()).Returns(mockConnection.Object);
+            mockedCreator.Setup(c => c.GetChannel()).Returns(mockChannel.Object);
+            mockedCreator.Setup(c => c.GetConnection()).Returns(mockConnection.Object);
+         
+            subject = new RabbitConsumer(mockedCreator.Object, queue,autoAck);
         }
 
         [TestMethod]
@@ -31,7 +47,7 @@ namespace rabbit_api.Api.Test
             {
 
             }
-            mockedChannel.Verify(c => c.Close());
+            mockedCreator.Verify(c => c.Dispose());
         }
 
         [TestMethod]
@@ -39,6 +55,16 @@ namespace rabbit_api.Api.Test
         {
             subject.RegisterReceiver(receiver);
             
+        }
+
+        [TestMethod]
+        public void HandleShutdown()
+        {
+            subject.RegisterReceiver(receiver);
+
+            subject.HandleShutdown("",null);
+
+            mockedCreator.Verify(c => c.GetChannel());
         }
 
         private void receiver(IModel channel, object message, BasicDeliverEventArgs eventArg)

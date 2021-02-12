@@ -14,31 +14,32 @@ using System.Net.Security;
 /// </summary>
 namespace rabbit_api.API
 {
-    public class Rabbit : IDisposable
+    public class Rabbit : IRabbitConnectionCreator
     {
         private readonly IConnectionFactory factory;
-
+        private IConnection connection = null;
         private readonly IList<Uri> endpoints = null;
-        
+
         private static readonly int DEFAULT_CONNECTION_RETRY_SECS = 15;
-        private IConnection connection;
+        // private IConnection connection;
 
         private static ConfigSettings config = new ConfigSettings();
+        private IModel channel;
 
-        internal ushort QosPreFetchLimit { get;  private set; }
+        internal ushort QosPreFetchLimit { get; private set; }
 
-        private Rabbit(string host, int port, string virtualHost, string clientProvidedName, int networkRecoveryIntervalSecs, ushort qosPreFetchLimit, string userName, char[] password) : 
+        private Rabbit(string host, int port, string virtualHost, string clientProvidedName, int networkRecoveryIntervalSecs, ushort qosPreFetchLimit, string userName, char[] password) :
              this(new ConnectionFactory()
-            {
-                HostName = host,
-                VirtualHost = virtualHost,
-                Port = port,
-                ClientProvidedName = clientProvidedName,
-                AutomaticRecoveryEnabled = true,
-                NetworkRecoveryInterval = TimeSpan.FromSeconds(networkRecoveryIntervalSecs),
-                UserName = userName,
-                Password = new string(config.GetPropertyPassword("RABBIT_PASSWORD","".ToCharArray()))
-            },
+             {
+                 HostName = host,
+                 VirtualHost = virtualHost,
+                 Port = port,
+                 ClientProvidedName = clientProvidedName,
+                 AutomaticRecoveryEnabled = true,
+                 NetworkRecoveryInterval = TimeSpan.FromSeconds(networkRecoveryIntervalSecs),
+                 UserName = userName,
+                 Password = new string(config.GetPropertyPassword("RABBIT_PASSWORD", "".ToCharArray()))
+             },
             null,
             false,
             qosPreFetchLimit
@@ -46,16 +47,16 @@ namespace rabbit_api.API
         {
         }
 
-        private Rabbit(IList<Uri> endpoints, Boolean sslEnabled, string clientProvidedName, int networkRecoveryIntervalSecs, ushort qosPreFetchLimit) : 
+        private Rabbit(IList<Uri> endpoints, Boolean sslEnabled, string clientProvidedName, int networkRecoveryIntervalSecs, ushort qosPreFetchLimit) :
              this(new ConnectionFactory()
-            {
-                Uri = endpoints[0],
-                ClientProvidedName = clientProvidedName,
-                AutomaticRecoveryEnabled = true,
-                Ssl = CreateSslOption(sslEnabled) ,
+             {
+                 Uri = endpoints[0],
+                 ClientProvidedName = clientProvidedName,
+                 AutomaticRecoveryEnabled = true,
+                 Ssl = CreateSslOption(sslEnabled),
 
-                NetworkRecoveryInterval = TimeSpan.FromSeconds(networkRecoveryIntervalSecs)
-            },
+                 NetworkRecoveryInterval = TimeSpan.FromSeconds(networkRecoveryIntervalSecs)
+             },
             endpoints,
             sslEnabled,
             qosPreFetchLimit
@@ -63,52 +64,86 @@ namespace rabbit_api.API
         {
         }
 
-        internal static IList<AmqpTcpEndpoint>  ToAmqpTcpEndpoints(IList<Uri> endpoints)
+        internal static IList<AmqpTcpEndpoint> ToAmqpTcpEndpoints(IList<Uri> endpoints)
         {
-            if(endpoints == null)
-            return null;
-            
-                IList<AmqpTcpEndpoint> amqpEndpoints = new List<AmqpTcpEndpoint>(endpoints.Count);
-                foreach( Uri uri in endpoints)
-                {
-                    amqpEndpoints.Add(new AmqpTcpEndpoint(uri,CreateSslOption(uri)));
-                }
-                return amqpEndpoints;
+            if (endpoints == null)
+                return null;
+
+            IList<AmqpTcpEndpoint> amqpEndpoints = new List<AmqpTcpEndpoint>(endpoints.Count);
+            foreach (Uri uri in endpoints)
+            {
+                amqpEndpoints.Add(new AmqpTcpEndpoint(uri, CreateSslOption(uri)));
+            }
+            return amqpEndpoints;
         }
-    
+
 
         internal static SslOption CreateSslOption(Uri uri)
         {
-           bool sslEnabled = uri.OriginalString.ToLower().Contains("amqps");
-           return CreateSslOption(sslEnabled);
+            bool sslEnabled = uri.OriginalString.ToLower().Contains("amqps");
+            return CreateSslOption(sslEnabled);
         }
-         internal static SslOption CreateSslOption(bool sslEnabled)
-         {  return new SslOption(){
-                    Enabled = sslEnabled,
-                 AcceptablePolicyErrors = SslPolicyErrors.RemoteCertificateNameMismatch |
-                                                SslPolicyErrors.RemoteCertificateChainErrors};
+        internal static SslOption CreateSslOption(bool sslEnabled)
+        {
+            return new SslOption()
+            {
+                Enabled = sslEnabled,
+                AcceptablePolicyErrors = SslPolicyErrors.RemoteCertificateNameMismatch |
+                                                SslPolicyErrors.RemoteCertificateChainErrors
+            };
         }
 
-        internal Rabbit(IConnectionFactory factory,IList<Uri> endpoints, Boolean sslEnabled, ushort  qosPreFetchLimit)
+        internal Rabbit(IConnectionFactory factory, IList<Uri> endpoints, Boolean sslEnabled, ushort qosPreFetchLimit)
         {
             this.factory = factory;
 
             this.QosPreFetchLimit = qosPreFetchLimit;
             this.endpoints = endpoints;
+            // this.connection = CreateConnection();
+        }
 
-            if(this.endpoints != null && this.endpoints.Count > 0)
+        public IConnection GetConnection()
+        {
+            if (this.connection == null)
             {
-                connection = factory.CreateConnection(
+                this.connection = NewConnection();
+                return this.connection;
+            }
+
+            if (this.connection.IsOpen)
+                return this.connection;
+            else
+            {
+
+                try
+                {
+                    this.connection.Dispose();
+                }
+                catch { }
+
+                this.connection = NewConnection();
+                return this.connection;
+            }
+        }
+
+        private IConnection NewConnection()
+        {
+            IConnection rabbitConnection = null;
+            if (this.endpoints != null && this.endpoints.Count > 0)
+            {
+                rabbitConnection = factory.CreateConnection(
                     ToAmqpTcpEndpoints(endpoints));
             }
             else
             {
-                connection = factory.CreateConnection();
+                rabbitConnection = factory.CreateConnection();
             }
 
-            connection.ConnectionBlocked += HandleBlocked;
-            connection.ConnectionUnblocked += HandleUnblocked;
-            connection.ConnectionShutdown += HandleShutdown;
+            rabbitConnection.ConnectionBlocked += HandleBlocked;
+            rabbitConnection.ConnectionUnblocked += HandleUnblocked;
+            rabbitConnection.ConnectionShutdown += HandleShutdown;
+
+            return rabbitConnection;
         }
 
         private void HandleShutdown(object sender, ShutdownEventArgs e)
@@ -128,47 +163,47 @@ namespace rabbit_api.API
 
         public RabbitConsumerBuilder ConsumerBuilder()
         {
-            return new RabbitConsumerBuilder(connection.CreateModel(),QosPreFetchLimit);
+            return new RabbitConsumerBuilder(this, QosPreFetchLimit);
         }
 
         public RabbitPublisherBuilder PublishBuilder()
         {
-            return new RabbitPublisherBuilder(connection.CreateModel(),QosPreFetchLimit);
+            return new RabbitPublisherBuilder(this, QosPreFetchLimit);
         }
 
         public static Rabbit Connect()
         {
             var config = new ConfigSettings();
-            int networkRecoveryIntervalSecs = config.GetPropertyInteger("RABBIT_CONNECTION_RETRY_SECS",DEFAULT_CONNECTION_RETRY_SECS);
+            int networkRecoveryIntervalSecs = config.GetPropertyInteger("RABBIT_CONNECTION_RETRY_SECS", DEFAULT_CONNECTION_RETRY_SECS);
             string clientName = config.GetProperty("RABBIT_CLIENT_NAME");
-            ushort qosPreFetchLimit = ushort.Parse(config.GetProperty("RABBIT_PREFETCH_LIMIT","1000"));
+            ushort qosPreFetchLimit = ushort.Parse(config.GetProperty("RABBIT_PREFETCH_LIMIT", "1000"));
 
             string urisText = config.GetPropertySecret("RABBIT_URIS", "");
-            if(urisText.Length > 1)
+            if (urisText.Length > 1)
             {
                 bool sslEnabled = urisText.ToLower().Contains("amqps:");
-                return new Rabbit(ParseUrisToEndPoints(urisText),sslEnabled,clientName,networkRecoveryIntervalSecs,qosPreFetchLimit);
+                return new Rabbit(ParseUrisToEndPoints(urisText), sslEnabled, clientName, networkRecoveryIntervalSecs, qosPreFetchLimit);
             }
-     
+
             string host = config.GetProperty("RABBIT_HOST", "localhost");
-            
+
             int port = config.GetPropertyInteger("RABBIT_PORT", 5672);
-            string virtualHost = config.GetProperty("RABBIT_VIRTUAL_HOST","/");
+            string virtualHost = config.GetProperty("RABBIT_VIRTUAL_HOST", "/");
             string userName = config.GetProperty("RABBIT_USERNAME");
             char[] password = config.GetProperty("RABBIT_PASSWORD").ToCharArray();
-            return new Rabbit(host, port,virtualHost, clientName,networkRecoveryIntervalSecs,qosPreFetchLimit,userName,password);
+            return new Rabbit(host, port, virtualHost, clientName, networkRecoveryIntervalSecs, qosPreFetchLimit, userName, password);
         }
 
         internal static IList<Uri> ParseUrisToEndPoints(string urisText)
         {
-            if(String.IsNullOrWhiteSpace(urisText))
+            if (String.IsNullOrWhiteSpace(urisText))
             {
                 throw new ArgumentException("URIS required");
             }
 
             string[] urisArray = urisText.Split(",");
             IList<Uri> list = new List<Uri>();
-            foreach(string uri in urisArray)
+            foreach (string uri in urisArray)
             {
                 list.Add(new Uri(uri));
             }
@@ -179,7 +214,33 @@ namespace rabbit_api.API
 
         public void Dispose()
         {
-            this.connection.Close();
+            if(this.channel != null)
+                this.channel.Dispose();
+
+            if(this.connection != null)
+                this.connection.Dispose();
+        }
+
+        public IModel GetChannel()
+        {
+            if(this.channel == null)
+            {
+                this.channel = GetConnection().CreateModel();
+                return this.channel;
+            }
+            
+
+            if (!this.channel.IsClosed)
+            {
+                return this.channel;
+            }
+            else
+            {
+                try{ this.channel.Dispose();} catch{}; 
+
+                 this.channel = GetConnection().CreateModel();
+                return this.channel;
+            }
         }
     }
 }

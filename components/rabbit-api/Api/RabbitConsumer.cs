@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
@@ -9,34 +10,58 @@ namespace rabbit_api.API
 {
     public class RabbitConsumer : IDisposable
     {
-        private readonly IModel channel;
+        private readonly IList<ReceiveMessage> recievers = new List<ReceiveMessage>();
+        private readonly IRabbitConnectionCreator creator;
         private readonly string queue;
         private bool autoAck = false;
 
-        public RabbitConsumer(IModel channel, string queue,bool autoAck)
+        public RabbitConsumer(IRabbitConnectionCreator creator, string queue,bool autoAck)
         {
-            this.channel = channel;
+            this.creator = creator;
             this.queue = queue;
             this.autoAck = autoAck;
+
+            creator.GetConnection().ConnectionShutdown += HandleShutdown;
         }
 
         public void Dispose()
         {
-            this.channel.Close();
+            this.creator.Dispose();
         }
 
         public void RegisterReceiver(ReceiveMessage receiver)
         {
-            var consumer = new EventingBasicConsumer(channel);
+
+            RegisterWithRabbit(receiver);
+            this.recievers.Add(receiver);
+        }
+
+         private void RegisterWithRabbit(ReceiveMessage receiver)
+        {
+            var consumer = new EventingBasicConsumer(creator.GetChannel());
 
             consumer.Received += (sender, ea) =>
             {
-                receiver(this.channel,sender, ea);
+                receiver(creator.GetChannel(),sender, ea);
             };
 
-            channel.BasicConsume(queue: queue,
+            creator.GetChannel().BasicConsume(queue: queue,
                                 autoAck: autoAck,
                                 consumer: consumer);
+        }
+
+
+        internal void HandleShutdown(object sender, ShutdownEventArgs e)
+        {
+            if(recievers.Count == 0)
+                return;
+
+            Console.WriteLine("WARNING: Processing shutdown and registering recievers");
+
+            foreach(var reciever in recievers)
+            {
+                RegisterWithRabbit(reciever);
+            }
         }
 
         public delegate void ReceiveMessage(IModel channel, object message, BasicDeliverEventArgs eventArg);
