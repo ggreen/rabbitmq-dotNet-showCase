@@ -56,6 +56,8 @@ namespace rabbit_api.API
 
             ConstructExchange();
 
+            ConstructQueues();
+
 
             IBasicProperties basicProperties = this.connectionCreator.GetChannel().CreateBasicProperties();
             basicProperties.Persistent = Persistent;

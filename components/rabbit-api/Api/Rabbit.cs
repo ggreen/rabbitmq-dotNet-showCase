@@ -1,12 +1,10 @@
 using System;
-using System.Text;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Collections.Generic;
 using Imani.Solutions.Core.API.Util;
-using System.Security.Authentication;
-using System.Security.Cryptography.X509Certificates;
 using System.Net.Security;
+using System.Threading;
 
 /// <summary>
 /// RabbitMQ facade interface wrapper
@@ -111,7 +109,9 @@ namespace rabbit_api.API
             }
 
             if (this.connection.IsOpen)
+            {
                 return this.connection;
+            }
             else
             {
 
@@ -121,13 +121,35 @@ namespace rabbit_api.API
                 }
                 catch { }
 
-                this.connection = NewConnection();
+
+                this.ResetConnection();
+
                 return this.connection;
             }
         }
 
+        private void ResetConnection()
+        {
+            while (!this.connection.IsOpen)
+            {
+                try
+                {
+                    this.connection = NewConnection();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"WARNING: {e.Message} restarting in {DEFAULT_CONNECTION_RETRY_SECS} seconds");
+                    Thread.Sleep(TimeSpan.FromSeconds(DEFAULT_CONNECTION_RETRY_SECS));
+                }
+            }
+
+        }
+
         private IConnection NewConnection()
         {
+            factory.HandshakeContinuationTimeout = TimeSpan.FromSeconds(DEFAULT_CONNECTION_RETRY_SECS);
+            factory.ContinuationTimeout = TimeSpan.FromSeconds(DEFAULT_CONNECTION_RETRY_SECS);
+
             IConnection rabbitConnection = null;
             if (this.endpoints != null && this.endpoints.Count > 0)
             {
@@ -214,21 +236,21 @@ namespace rabbit_api.API
 
         public void Dispose()
         {
-            if(this.channel != null)
+            if (this.channel != null)
                 this.channel.Dispose();
 
-            if(this.connection != null)
+            if (this.connection != null)
                 this.connection.Dispose();
         }
 
         public IModel GetChannel()
         {
-            if(this.channel == null)
+            if (this.channel == null)
             {
                 this.channel = GetConnection().CreateModel();
                 return this.channel;
             }
-            
+
 
             if (!this.channel.IsClosed)
             {
@@ -236,9 +258,9 @@ namespace rabbit_api.API
             }
             else
             {
-                try{ this.channel.Dispose();} catch{}; 
+                try { this.channel.Dispose(); } catch { };
 
-                 this.channel = GetConnection().CreateModel();
+                this.channel = GetConnection().CreateModel();
                 return this.channel;
             }
         }

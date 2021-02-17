@@ -32,6 +32,9 @@ docker cp /Users/devtools/integration/messaging/rabbit/rabbit-devOps/plugins/rab
 ```
 
 
+dotnet run  --EXCHANGE_TYPE=direct  --EXCHANGE=exchange_imani  --MESSAGE="{\"id\": \"1\"}"  --QUEUE_TYPE=classic --QUEUE=queue_delayed_example_classic --ROUTING_KEY=1  --REPEAT_COUNT=100 --WAIT_FOR_CONFIRMATION_SECONDS=1  --RABBIT_CLIENT_NAME=producer --SLEEP_PERIOD_MS=1000 --PRODUCERS=1 --CONSUMERS=0 --RABBIT_URIS="amqp://guest:guest@$HOSTNAME:5672/"
+
+
 
 Limitations
 
@@ -39,3 +42,5 @@ Limitations
 - Does not support mandate flag to detect unrouted messages
 - Risk of data lost
 - Does not support millions of delayed messages
+- Does not honor pause minority
+- 

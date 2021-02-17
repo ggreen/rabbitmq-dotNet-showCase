@@ -41,6 +41,7 @@ namespace rabbit_api.API
             mockModel = new Mock<IModel>();
             mockConnection.Setup( connection => connection.CreateModel()).Returns(mockModel.Object);
             mockConnectionCreator.Setup(c => c.GetConnection()).Returns(mockConnection.Object);
+            mockConnectionCreator.Setup(c => c.GetChannel()).Returns(mockModel.Object);
             subject = new RabbitConsumerBuilder(mockConnectionCreator.Object, expectedPreFetchLimit);
             expectedTuple = new Tuple<string, string>(expectedQueue, expectedRoutingKey);
         }

@@ -42,10 +42,13 @@ namespace rabbit_api.API.Test
             this.mockConnection = new Mock<IConnection>();
             mockChannel = new Mock<IModel>();
 
-            this.mockCreator.Setup( c => c.GetConnection()).Returns(mockConnection.Object);
+            
             this.mockConnection.Setup( c => c.CreateModel()).Returns(mockChannel.Object);
+
         
             mockChannel.Setup(c => c.CreateBasicProperties()).Returns(mockProperties.Object);
+            this.mockCreator.Setup( c => c.GetConnection()).Returns(mockConnection.Object);
+            this.mockCreator.Setup( c => c.GetChannel()).Returns(mockChannel.Object);
 
             subject = new RabbitPublisherBuilder(mockCreator.Object,expectedPreFetchLimit);
         }

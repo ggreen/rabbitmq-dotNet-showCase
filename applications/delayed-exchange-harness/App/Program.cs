@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Imani.Solutions.Core.API.Util;
 using RabbitMQ.Client;
@@ -45,7 +46,8 @@ namespace delay_exchnage_harness.App
 
                     for (int i = 0; i < msgCount; i++)
                     {
-                        channel.BasicPublish(exchange,routingKey,mandatory,msgProperties,body);       
+                        channel.BasicPublish(exchange,routingKey,mandatory,msgProperties,body);   
+                        Thread.Sleep(TimeSpan.FromMilliseconds(config.GetPropertyInteger("DELAY_MS",5)));    
                     }
                  
                 }

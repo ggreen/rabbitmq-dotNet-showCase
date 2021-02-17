@@ -32,6 +32,7 @@ namespace rabbit_api.Api.Test
             mockedConnection = new Mock<IConnection>();
             mockedConnection.Setup(c => c.CreateModel()).Returns(mockedChannel.Object);
             mockedCreator.Setup(c=> c.GetConnection()).Returns(mockedConnection.Object);
+            mockedCreator.Setup(c=> c.GetChannel()).Returns(mockedChannel.Object);
             subject = new RabbitPublisher(mockedCreator.Object, exchange, basicProperties.Object,confirmPublish);
         }
 
@@ -42,7 +43,7 @@ namespace rabbit_api.Api.Test
             {
 
             }
-            mockedChannel.Verify(c => c.Dispose());
+            mockedCreator.Verify(c => c.Dispose());
         }
 
         [TestMethod]

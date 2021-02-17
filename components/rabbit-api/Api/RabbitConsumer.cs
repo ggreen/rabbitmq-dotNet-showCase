@@ -56,12 +56,22 @@ namespace rabbit_api.API
             if(recievers.Count == 0)
                 return;
 
-            Console.WriteLine("WARNING: Processing shutdown and registering recievers");
+            Console.WriteLine("WARNING: Processing shutdown. Reconnecting");
 
-            foreach(var reciever in recievers)
+            try
             {
-                RegisterWithRabbit(reciever);
+                foreach(var reciever in recievers)
+                {
+                    RegisterWithRabbit(reciever);
+                }
+
+                Console.WriteLine("INFO: Completed Reconnecting");
             }
+            catch(Exception exception)
+            {
+                Console.WriteLine($"ERROR: {exception}");
+            }
+
         }
 
         public delegate void ReceiveMessage(IModel channel, object message, BasicDeliverEventArgs eventArg);

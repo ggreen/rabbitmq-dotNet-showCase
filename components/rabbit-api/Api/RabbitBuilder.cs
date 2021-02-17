@@ -121,7 +121,7 @@ namespace rabbit_api.API
         }
         internal void ConstructQueues()
         {
-            CheckQueues();
+            //CheckQueues();
 
             foreach (var queue in queues)
             {
