@@ -20,7 +20,7 @@ namespace rabbit_api.API.Test
         private int sleepTimeMs = 1000;
         private string expectedRoutingKey = "";
 
-        [TestMethod]
+        //[TestMethod]
         public void IntTest()
         {
             Environment.SetEnvironmentVariable("RABBIT_PORT","5671");

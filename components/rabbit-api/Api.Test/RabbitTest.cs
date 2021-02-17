@@ -30,6 +30,19 @@ namespace rabbit_api.API.Test
         private Mock<IBasicProperties> mockProperties = new Mock<IBasicProperties>();
         private ushort expectedPrefetch = 22;
 
+            [TestInitialize]
+        public void InitializeRabbitTest()
+        {
+            
+            mockChannel.Setup(c=> c.CreateBasicProperties()).Returns(mockProperties.Object);
+            mockChannel.Setup(c=> c.IsClosed ).Returns(true);
+            mockChannel.Setup(c=> c.IsClosed).Returns(false);
+            mockConnection.Setup(c => c.CreateModel()).Returns(mockChannel.Object);
+            mockConnection.Setup(c => c.IsOpen).Returns(true);
+            mockFactory.Setup( f => f.CreateConnection()).Returns(mockConnection.Object);
+            subject = new Rabbit(mockFactory.Object,null,false,expectedPrefetch);
+        }
+
         private void HandleShutdown(object sender, ShutdownEventArgs e)
         {
             Console.WriteLine("FATAL: error Connection Shutdown");
@@ -72,6 +85,7 @@ namespace rabbit_api.API.Test
             Assert.IsFalse(Rabbit.CreateSslOption(false).Enabled);
         }
 
+    
         [TestMethod]
         public void CreateSslOption_Uri()
         {
@@ -81,15 +95,6 @@ namespace rabbit_api.API.Test
         }
 
 
-        [TestInitialize]
-        public void InitializeRabbitTest()
-        {
-            
-            mockChannel.Setup(c=> c.CreateBasicProperties()).Returns(mockProperties.Object);
-            mockConnection.Setup(c => c.CreateModel()).Returns(mockChannel.Object);
-            mockFactory.Setup( f => f.CreateConnection()).Returns(mockConnection.Object);
-            subject = new Rabbit(mockFactory.Object,null,false,expectedPrefetch);
-        }
       
         [TestMethod]
         public void Publish()
