@@ -9,6 +9,10 @@ using RabbitMQ.Client;
 
 namespace rabbit_qa_harness.App
 {
+    /// <summary>
+    /// ProducerHarness is an example fault tolerantRabbitMQ prodcuer
+    /// author: Gregory Green
+    /// </summary>
     class ProducerHarness
     {
         private const int JSON_MIN_SIZE = 10;
@@ -107,24 +111,6 @@ namespace rabbit_qa_harness.App
                         Console.WriteLine($"PRODUCER: Msg sent {message.Length} byte count {sentCount}");
                         Thread.Sleep(sleepPeriodMs);
                     }
-                    catch (AlreadyClosedException alreadyClosedException)
-                    {
-                        Console.WriteLine($"PRODUCER:  Connection closed {alreadyClosedException} sentCount:{sentCount}");
-
-                        while (true)
-                        {
-                            try
-                            {
-                                Connect();
-                                break;
-                            }
-                            catch (Exception exception)
-                            {
-                                Console.WriteLine($"{exception} will retry in {errorSleepPeriodMs} milliseconds");
-                                Thread.Sleep(errorSleepPeriodMs);
-                            }
-                        }
-                    }
                     catch (RabbitMQClientException rabbitException)
                     {
                         Console.WriteLine($"PRODUCER:  client exce[topm] {rabbitException}, sentCount:{sentCount} sleeping {errorSleepPeriodMs} milliseconds");
@@ -135,7 +121,7 @@ namespace rabbit_qa_harness.App
                     {
                         Console.WriteLine($"PRODUCER: EXCEPTION:{e} sentCount:{sentCount} sleeping {errorSleepPeriodMs} milliseconds");
                         Thread.Sleep(errorSleepPeriodMs);
-                        Console.WriteLine($"PRODUCER: WOKE after non RabbitMQ exception {e.Message} sentCount:{sentCount}");
+                        Console.WriteLine($"PRODUCER: WOKE after RabbitMQ exception {e.Message} sentCount:{sentCount}");
                     }
 
                 }

@@ -75,7 +75,6 @@ namespace rabbit_api.API
             return amqpEndpoints;
         }
 
-
         internal static SslOption CreateSslOption(Uri uri)
         {
             bool sslEnabled = uri.OriginalString.ToLower().Contains("amqps");
@@ -130,11 +129,15 @@ namespace rabbit_api.API
 
         private void ResetConnection()
         {
-            while (!this.connection.IsOpen)
+           
+            while (this.connection == null || !this.connection.IsOpen)
             {
                 try
                 {
                     this.connection = NewConnection();
+                    this.channel = connection.CreateModel();
+                    Console.WriteLine("INFO: connected to cluster");
+                    
                 }
                 catch (Exception e)
                 {
@@ -251,15 +254,31 @@ namespace rabbit_api.API
                 return this.channel;
             }
 
-
-            if (!this.channel.IsClosed)
+            if (!this.channel.IsClosed && this.connection.IsOpen)
             {
+                if(this.channel.NextPublishSeqNo == 0)
+                {
+                    if(this.channel != null)
+                    {
+                        this.channel.Dispose();
+                        this.channel = null;
+                    }
+                        
+
+                    if(this.connection != null){
+                        this.connection.Dispose();
+                        this.connection = null;
+                    }
+                    
+                    this.ResetConnection();
+                    this.channel.ConfirmSelect();
+                }
                 return this.channel;
             }
             else
             {
                 try { this.channel.Dispose(); } catch { };
-
+                
                 this.channel = GetConnection().CreateModel();
                 return this.channel;
             }
