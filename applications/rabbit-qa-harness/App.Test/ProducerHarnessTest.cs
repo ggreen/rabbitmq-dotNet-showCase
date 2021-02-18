@@ -5,6 +5,11 @@ using Moq;
 
 namespace rabbit_qa_harness.App.Test
 {
+    /// <summary>
+    /// Testing for ProducerHarness
+    /// 
+    /// author: Gregory Green
+    /// </summary>
     [TestClass]
     public class ProducerHarnessTest
     {

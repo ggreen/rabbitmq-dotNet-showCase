@@ -5,7 +5,13 @@ using Imani.Solutions.Core.API.Util;
 
 namespace rabbit_qa_harness.App
 {
-    public class Program
+    /// <summary>
+    /// RabbitQaHarnessProgram is a utility to test RabbitMQ 
+    ///  message producing and consuming.
+    /// 
+    /// author: Gregory Green
+    /// </summary>
+    public class RabbitQaHarnessProgram
     {
         public static void Main(string[] args)
         {

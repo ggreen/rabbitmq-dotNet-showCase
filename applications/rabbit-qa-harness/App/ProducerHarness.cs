@@ -10,7 +10,7 @@ using RabbitMQ.Client;
 namespace rabbit_qa_harness.App
 {
     /// <summary>
-    /// ProducerHarness is an example fault tolerantRabbitMQ prodcuer
+    /// ProducerHarness is an example fault tolerant RabbitMQ producer
     /// author: Gregory Green
     /// </summary>
     class ProducerHarness

@@ -11,6 +11,7 @@ using RabbitMQ.Client.Events;
 namespace rabbit_qa_harness.App
 {
     /// <summary>
+    /// ConsumerHarness is an example fault tolerant RabbitMQ consumer
     /// Author: Gregory Green
     /// </summary>
     public class ConsumerHarness
