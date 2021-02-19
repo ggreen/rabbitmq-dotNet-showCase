@@ -116,6 +116,7 @@ namespace rabbit_api.API
 
                 try
                 {
+                    Console.WriteLine("WARNING: DISPOSING connection");
                     this.connection.Dispose();
                 }
                 catch { }
@@ -166,14 +167,8 @@ namespace rabbit_api.API
 
             rabbitConnection.ConnectionBlocked += HandleBlocked;
             rabbitConnection.ConnectionUnblocked += HandleUnblocked;
-            rabbitConnection.ConnectionShutdown += HandleShutdown;
 
             return rabbitConnection;
-        }
-
-        private void HandleShutdown(object sender, ShutdownEventArgs e)
-        {
-            Console.WriteLine($"FATAL: ======== ERROR Connection SHUTDOWN event {e} sender {sender} ========");
         }
 
         private void HandleBlocked(object sender, ConnectionBlockedEventArgs args)
@@ -239,6 +234,7 @@ namespace rabbit_api.API
 
         public void Dispose()
         {
+            Console.WriteLine("WARNING: %%%%%% dispose connection");
             if (this.channel != null)
                 this.channel.Dispose();
 
@@ -260,6 +256,7 @@ namespace rabbit_api.API
                 {
                     if(this.channel != null)
                     {
+                        Console.WriteLine("WARNING:NextPublishSeqNo == 0");
                         this.channel.Dispose();
                         this.channel = null;
                     }
@@ -277,7 +274,10 @@ namespace rabbit_api.API
             }
             else
             {
-                try { this.channel.Dispose(); } catch { };
+                try { 
+                    Console.WriteLine("WARNING: DISPOSING connection");
+
+                    this.channel.Dispose(); } catch { };
                 
                 this.channel = GetConnection().CreateModel();
                 return this.channel;

@@ -139,3 +139,21 @@ dotnet run  --EXCHANGE_TYPE=direct  --EXCHANGE=federated_exchange --QUEUE=federa
 
 
 dotnet run  --EXCHANGE_TYPE=direct  --EXCHANGE=federated_exchange  --QUEUE=federated_queue  --QUEUE_TYPE=quorum  --MESSAGE_SIZE=100 --ROUTING_KEY=1  --REPEAT_COUNT=1000000000 --WAIT_FOR_CONFIRMATION_SECONDS=1  --RABBIT_CLIENT_NAME=producer --SLEEP_PERIOD_MS=1000 --PRODUCERS=1 --CONSUMERS=0 --RABBIT_URIS="amqp://guest:guest@$HOSTNAME:5672/"
+
+
+
+# Redelivery
+
+Producer
+
+```shell script
+dotnet run  --EXCHANGE_TYPE=direct  --EXCHANGE=exchange_imani  --MESSAGE="Invalid" --ROUTING_KEY=1  --REPEAT_COUNT=1 --WAIT_FOR_CONFIRMATION_SECONDS=1  --RABBIT_CLIENT_NAME=producer --SLEEP_PERIOD_MS=1000 --PRODUCERS=1 --CONTENT_TYPE="application/json" --CONSUMERS=0 --RABBIT_URIS="amqp://guest:guest@$HOSTNAME:5672/"
+```
+
+
+
+Consumer
+
+```shell script
+dotnet run  --EXCHANGE_TYPE=direct  --EXCHANGE=exchange_imani  --QUEUE=queue_imani_single_active --QUEUE_TYPE=quorum  --RABBIT_PORT=5672 --ROUTING_KEY=1  --REPEAT_COUNT=2000 --WAIT_FOR_CONFIRMATION_SECONDS=1  --RABBIT_CLIENT_NAME=rabbitMqQAHarness --SLEEP_PERIOD_MS=1000 --PRODUCERS=0 --CONSUMERS=1 --RABBIT_URIS="amqp://guest:guest@$HOSTNAME:5672/" --SINGLE_ACTIVE_CONSUMER=true --CONSUMER_IS_NASK_REQUEUED=true
+```
