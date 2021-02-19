@@ -21,7 +21,9 @@ namespace rabbit_api.Api.Test
         private RabbitPublisher subject;
         private Mock<IBasicProperties> basicProperties;
         private readonly bool confirmPublish = true;
-        //private readonly string contentType = "application/json";
+
+        private byte[] body = Encoding.UTF8.GetBytes("hello");
+        private string routingKey = "";
 
         [TestInitialize]
         public void InitializeRabbitPublisherTest()
@@ -81,13 +83,25 @@ namespace rabbit_api.Api.Test
         [TestMethod]
         public void Publish_ConfirmPublish()
         {
-            byte[] body = Encoding.UTF8.GetBytes("hello");
-            string routingKey = "";
-
-
             subject.Publish(body, routingKey);
 
             mockedChannel.Verify(c => c.WaitForConfirmsOrDie(It.IsAny<TimeSpan>()));
+        }
+
+        [TestMethod]
+        public void PublishException_NextSeq()
+        {
+            ulong errorNextPublishSeqNo = 0;
+            this.mockedChannel.Setup( c => c.NextPublishSeqNo).Returns(errorNextPublishSeqNo);
+            
+            mockedChannel.Setup(mc => 
+            mc.BasicPublish(exchange,
+            routingKey,true,It.IsAny<IBasicProperties>(),body))
+            .Throws(new InvalidOperationException());
+
+            Assert.ThrowsException<InvalidOperationException>( () => subject.Publish(body,routingKey));
+
+            mockedCreator.Verify(mc => mc.Reconnect());
         }
     }
 }

@@ -7,5 +7,7 @@ namespace rabbit_api.API
     {
         IConnection GetConnection();
         IModel GetChannel();
+
+        void Reconnect();
     }
 }

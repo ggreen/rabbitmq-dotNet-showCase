@@ -26,6 +26,16 @@ namespace rabbit_api.API
 
         internal ushort QosPreFetchLimit { get; private set; }
 
+        internal Rabbit(IConnectionFactory factory, IList<Uri> endpoints, Boolean sslEnabled, ushort qosPreFetchLimit)
+        {
+            this.factory = factory;
+
+            this.QosPreFetchLimit = qosPreFetchLimit;
+            this.endpoints = endpoints;
+            
+            this.connection = this.GetConnection();
+            this.channel = this.GetChannel();
+        }
         private Rabbit(string host, int port, string virtualHost, string clientProvidedName, int networkRecoveryIntervalSecs, ushort qosPreFetchLimit, string userName, char[] password) :
              this(new ConnectionFactory()
              {
@@ -62,6 +72,23 @@ namespace rabbit_api.API
         {
         }
 
+        public void Reconnect()
+        {
+            
+            if(this.channel != null)
+                this.channel.Dispose();
+            
+            this.channel = null;
+
+            if(this.connection != null)
+                this.connection.Dispose();
+
+            this.connection = null;
+
+            this.ResetConnection();
+           // this.channel.ConfirmSelect();
+        }
+
         internal static IList<AmqpTcpEndpoint> ToAmqpTcpEndpoints(IList<Uri> endpoints)
         {
             if (endpoints == null)
@@ -90,14 +117,6 @@ namespace rabbit_api.API
             };
         }
 
-        internal Rabbit(IConnectionFactory factory, IList<Uri> endpoints, Boolean sslEnabled, ushort qosPreFetchLimit)
-        {
-            this.factory = factory;
-
-            this.QosPreFetchLimit = qosPreFetchLimit;
-            this.endpoints = endpoints;
-            // this.connection = CreateConnection();
-        }
 
         public IConnection GetConnection()
         {
@@ -130,7 +149,7 @@ namespace rabbit_api.API
 
         private void ResetConnection()
         {
-           
+
             while (this.connection == null || !this.connection.IsOpen)
             {
                 try
@@ -138,7 +157,7 @@ namespace rabbit_api.API
                     this.connection = NewConnection();
                     this.channel = connection.CreateModel();
                     Console.WriteLine("INFO: connected to cluster");
-                    
+
                 }
                 catch (Exception e)
                 {
@@ -250,38 +269,20 @@ namespace rabbit_api.API
                 return this.channel;
             }
 
-            if (!this.channel.IsClosed && this.connection.IsOpen)
+            if (this.channel.IsClosed)
             {
-                if(this.channel.NextPublishSeqNo == 0)
+                try
                 {
-                    if(this.channel != null)
-                    {
-                        Console.WriteLine("WARNING:NextPublishSeqNo == 0");
-                        this.channel.Dispose();
-                        this.channel = null;
-                    }
-                        
-
-                    if(this.connection != null){
-                        this.connection.Dispose();
-                        this.connection = null;
-                    }
-                    
-                    this.ResetConnection();
-                    this.channel.ConfirmSelect();
-                }
-                return this.channel;
-            }
-            else
-            {
-                try { 
                     Console.WriteLine("WARNING: DISPOSING connection");
+                    this.channel.Dispose();
+                }
+                catch { };
 
-                    this.channel.Dispose(); } catch { };
-                
-                this.channel = GetConnection().CreateModel();
-                return this.channel;
+                this.channel = null;
             }
+
+            this.channel = GetConnection().CreateModel();
+            return this.channel;
         }
     }
 }

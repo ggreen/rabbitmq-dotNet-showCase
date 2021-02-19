@@ -54,7 +54,29 @@ namespace rabbit_api.API.Test
             var actual = subject.GetChannel();
             Assert.IsNotNull(actual);
 
+        }
+          [TestMethod]
+        public void GetChannel_WhenClosedReconnect()
+        {
+            mockChannel.Setup(c=> c.IsClosed).Returns(true);
+
+            var actual = subject.GetChannel();
+            Assert.IsNotNull(actual);
+
+            mockChannel.Verify(c => c.Dispose());
+            mockConnection.Verify(c => c.CreateModel());
+
+        }
+        
+        [TestMethod]
+        public void Reconnect()
+        {
             
+            subject.Reconnect();
+
+            mockChannel.Verify(c => c.Dispose());
+            mockConnection.Verify(c => c.Dispose());
+            mockChannel.Verify(c => c.ConfirmSelect());
         }
 
         [TestMethod]
@@ -116,17 +138,7 @@ namespace rabbit_api.API.Test
 
 
         }
-
-        [TestMethod]
-        public void Dispose_WhenNoConnection()
-        {
-            using(subject){
-
-            }
-            mockConnection.Verify( c => c.Dispose(),Times.Never);
-
-        }
-
+        
         [TestMethod]
         public void Dispose()
         {

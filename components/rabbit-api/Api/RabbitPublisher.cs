@@ -45,16 +45,33 @@ namespace rabbit_api.API
             if (routingKey == null)
                 throw new ArgumentException("routingKey cannot be null");
 
-            creator.GetChannel().BasicPublish(exchange: exchange,
+
+                try{
+                    IModel channel = creator.GetChannel();
+
+                    channel.BasicPublish(exchange: exchange,
                                  routingKey: routingKey,
                                  mandatory: true,
                                  basicProperties: basicProperties,
                                  body: body);
 
-            if (this.requireReliableDelivery)
-            {
-                creator.GetChannel().WaitForConfirmsOrDie(waitFromConfirmationTimeSpan);
-            }
+                    if (this.requireReliableDelivery)
+                    {
+                        channel.WaitForConfirmsOrDie(waitFromConfirmationTimeSpan);
+                    }
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine(e);
+                    // if(creator.GetChannel().NextPublishSeqNo == 0)
+                    // {
+                    //     try{ creator.Reconnect();}catch{}
+                        
+                    //     throw e;
+                    // }
+
+                }
+            
             
         }
     }
